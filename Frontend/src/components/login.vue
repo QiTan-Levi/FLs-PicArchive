@@ -164,6 +164,7 @@ const login = async () => {
     if (response.data.status === 'success') {
       // Save login state and user info to localStorage
       localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('token', response.data.token); // 确保token被正确设置
       
       // Parse all cookies from response
       const cookies = document.cookie.split('; ');
@@ -253,14 +254,7 @@ const login = async () => {
   padding: 2rem;
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(12px);
-  border-radius: 24px;
-  padding: 2.5rem;
-  width: 420px;
-  margin: 0 auto;
-}
+
 
 .logo-area {
   text-align: center;
@@ -270,7 +264,14 @@ const login = async () => {
 .logo-area img {
   height: 48px;
 }
-
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 2.5rem;
+  width: 420px;
+  margin: 0 auto;
+}
 .glass-card h2 {
   text-align: center;
   margin-bottom: 1.5rem;

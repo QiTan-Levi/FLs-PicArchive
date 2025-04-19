@@ -30,7 +30,7 @@ def init_db_connections():
     mongodb = pymongo.MongoClient("mongodb://localhost:27017/")["transportation"]
     fs = GridFS(mongodb)
 
-    return mysql, mongodb, fs
+    return mysql
 
 def send_verification_email(email, code):
     with open('verifycode_email_template.html', 'r', encoding='utf-8') as f:

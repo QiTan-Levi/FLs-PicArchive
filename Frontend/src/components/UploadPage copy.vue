@@ -2,30 +2,31 @@
   <div class="home-container bg-gradient-to-r from-blue-500 to-purple-500">
     <!-- 顶部导航栏 -->
     <nav class="nav-bar">
-      <div class="nav-content">
-        <div class="nav-left">
-          <router-link to="/" class="logo">
-            <img src="@/assets/logo.svg" alt="Logo" class="logo-image">
-            <span class="logo-text">ByInfo - Fs Picture Archieve</span>
-          </router-link>
+    <div class="nav-content">
+      <div class="nav-left">
+        <router-link to="/" class="logo">
+          <img src="@/assets/logo.svg" alt="Logo" class="logo-image">
+          <span class="logo-text">ByInfo - Fs Picture Archieve</span>
+        </router-link>
 
+      </div>
+      <div class="nav-right">
+        <div v-if="isLoggedIn" class="user-info">
+          <span class="user-name">{{ userName }}</span>
+          <div class="dropdown-menu">
+            <router-link to="/upload" class="dropdown-item">上传图片</router-link>
+            <router-link to="/my-profile" class="dropdown-item">个人资料</router-link>
+            <button @click="handleLogout" class="dropdown-item logout-button" >退出登录</button>
+          </div>
+          <router-link to="/upload" class="nav-button">上传</router-link>
         </div>
-        <div class="nav-right">
-          <div v-if="isLoggedIn" class="user-info">
-            <span class="user-name">{{ userName }}</span>
-            <div class="dropdown-menu">
-              <router-link to="/upload" class="dropdown-item">上传图片</router-link>
-              <router-link to="/my-profile" class="dropdown-item">个人资料</router-link>
-              <button @click="handleLogout" class="dropdown-item logout-button">退出登录</button>
-            </div>
-          </div>
-          <div v-else>
-            <router-link to="/account/login" class="nav-button">登录</router-link>
-            <router-link to="/account/register" class="nav-button primary">注册</router-link>
-          </div>
+        <div v-else>
+          <router-link to="/account/login" class="nav-button">登录</router-link>
+          <router-link to="/account/register" class="nav-button primary">注册</router-link>
         </div>
       </div>
-    </nav>
+    </div>
+  </nav>
     <!-- 主要内容区 -->
     <main class="main-content">
       <div class="upload-container glass-card">
@@ -43,63 +44,41 @@
           </div>
 
           <!-- 图片信息表单 -->
-
-
-          <div class="upload-container glass-card" style="width: 81%; margin-left: -1%;">
-            <div class="info-section">
-              <h3>飞机信息</h3>
-              <div class="form-group">
-                <label>航班号</label>
-                <input type="text" v-model="formData.flightNumber" placeholder="e.g. HU7051 / MU501" required>
-              </div>
-              <div class="form-group">
-                <label>注册号</label>
-                <input type="text" v-model="formData.registrationNumber" placeholder="e.g. B-2447 / JA383A"required>
-              </div>
-              <div class="form-group">
-                <label>飞机型号</label>
-                <input type="text" v-model="formData.model" placeholder="e.g. Airbus A320 / Boeing 787-8" required>
-              </div>
-              <div class="form-group">
-                <label>航司</label>
-                <input type="text" v-model="formData.airlineOperator" placeholder="e.g. 中国南方航空 / 厦门航空" required>
-              </div>
-            </div>
-          </div>
-          <div class="upload-container glass-card " style="width: 86.3%;">
-            <div class="photo-section">
-              <h3>照片信息</h3>
-              <div class="form-group">
-                <label>拍摄时间</label>
-                <input type="datetime-local" v-model="formData.shootTime" required>
-              </div>
-              <div class="form-group">
-                <label>拍摄地点</label>
-                <input type="text" v-model="formData.location" placeholder="请输入拍摄地点" required>
-              </div>
-              <div class="form-group">
-                <label>天气</label>
-                <div class="category-suggestions">
-                  <button v-for="condition in ['晴', '多云', '阴', '雨', '雪', '雾', '霾', '雹']" :key="condition" type="button"
-                    :class="['category-tag', { active: formData.weatherConditions.includes(condition) }]"
-                    @click="toggleWeatherCondition(condition)">
-                    {{ condition }}
-                  </button>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>类型（可以留空）</label>
-                <div class="category-suggestions">
-                  <button v-for="type in ['机场', '驾驶舱', '艺术', '地服', '货运', '彩绘', '夜摄']" :key="type"
-                    type="button" :class="['category-tag', { active: formData.imageTypes.includes(type) }]"
-                    @click="toggleImageType(type)">
-                    {{ type }}
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div class="form-group">
+            <label>飞机型号</label>
+            <input type="text" v-model="formData.model" placeholder="请输入飞机型号" required>
           </div>
 
+          <div class="form-group">
+            <label>拍摄地点</label>
+            <input type="text" v-model="formData.location" placeholder="请输入拍摄地点" required>
+          </div>
+
+          <div class="form-group">
+            <label>拍摄时间</label>
+            <input type="datetime-local" v-model="formData.shootTime" required>
+          </div>
+
+          <div class="form-group">
+            <label>图片描述</label>
+            <textarea v-model="formData.description" placeholder="请输入图片描述" rows="4"></textarea>
+          </div>
+
+          <!-- 分类建议 -->
+          <div class="form-group" v-if="suggestedCategories.length">
+            <label>推荐分类</label>
+            <div class="category-suggestions">
+              <button 
+                v-for="category in suggestedCategories" 
+                :key="category"
+                type="button"
+                :class="['category-tag', { active: formData.categories.includes(category) }]"
+                @click="toggleCategory(category)"
+              >
+                {{ category }}
+              </button>
+            </div>
+          </div>
 
           <!-- 上传进度 -->
           <div class="upload-progress" v-if="uploadProgress > 0 && uploadProgress < 100">
@@ -108,13 +87,7 @@
             </div>
             <span>{{ uploadProgress }}%</span>
           </div>
-          <div class="upload-container glass-card" style="grid-column: span 2;width: 92.5%; margin-left: -0.6%;">
-          <h3>上传附加</h3>
-          <div class="form-group">
-            <label>图片描述</label>
-            <textarea v-model="formData.description" rows="4" placeholder="可以填写表单未提及但值得说明的内容" style="resize: none;width: 97%;height: 100%;font-size: 15px;margin-left: -1%;font-family:hermit "></textarea>
-          </div>
-        </div>
+
           <button type="submit" class="submit-button" :disabled="uploading">{{ uploading ? '上传中...' : '提交' }}</button>
         </form>
       </div>
@@ -124,12 +97,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive } from 'vue';
+import { ref, computed, onMounted , reactive } from 'vue';
+// import { useStore } from 'vuex'; // Removed Vuex import
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import vSelect from 'vue-select';
-import 'vue-select/dist/vue-select.css';
 
+// const store = useStore(); // Removed store instance
 const router = useRouter();
 const searchQuery = ref('');
 
@@ -149,7 +122,7 @@ onMounted(() => {
   // Check local storage for login state, for example
   isLoggedIn.value = localStorage.getItem('isLoggedIn') === 'true';
   userName.value = localStorage.getItem('userName') || '';
-
+  
 });
 const fileInput = ref(null);
 const previewImage = ref('');
@@ -161,14 +134,7 @@ const formData = reactive({
   location: '',
   shootTime: '',
   description: '',
-  categories: [],
-  // 新增字段
-  registrationNumber: '',
-  flightNumber: '',
-  airlineOperator: '',
-  imageTypes: [],
-  weatherConditions: [],
-  locationInfo: ''
+  categories: []
 });
 
 const suggestedCategories = ref(['军用', '民用', '客机', '货机', '战斗机', '直升机']);
@@ -239,12 +205,14 @@ const handleSubmit = async () => {
     return;
   }
 
+  // 检查用户是否登录 (using local ref now)
   if (!isLoggedIn.value) {
     alert('请先登录再上传图片');
-    router.push('/account/login');
+    router.push('/account/login'); // Redirect to login if not logged in
     return;
   }
 
+  // 检查localStorage中的token是否存在
   if (!localStorage.getItem('token')) {
     alert('登录状态已过期，请重新登录');
     router.push('/account/login');
@@ -260,12 +228,13 @@ const handleSubmit = async () => {
   uploadData.append('location', formData.location);
   uploadData.append('shootTime', formData.shootTime);
   uploadData.append('description', formData.description);
-  uploadData.append('categories', JSON.stringify(formData.categories));
+  uploadData.append('categories', JSON.stringify(formData.categories)); // Send categories as JSON string
 
   try {
     const response = await axios.post('/api/upload', uploadData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+        // Include authorization token if needed, e.g., from localStorage
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
       onUploadProgress: (progressEvent) => {
@@ -275,6 +244,7 @@ const handleSubmit = async () => {
 
     if (response.status === 200 || response.status === 201) {
       alert('上传成功！');
+      // 重置表单
       formData.model = '';
       formData.location = '';
       formData.shootTime = '';
@@ -282,8 +252,8 @@ const handleSubmit = async () => {
       formData.categories = [];
       previewImage.value = '';
       selectedFile.value = null;
-      fileInput.value.value = '';
-      router.push('/');
+      fileInput.value.value = ''; // Reset file input
+      router.push('/'); // Optionally redirect after successful upload
     } else {
       throw new Error(response.data.message || '上传失败');
     }
@@ -292,7 +262,7 @@ const handleSubmit = async () => {
     alert(`上传失败: ${error.response?.data?.message || error.message || '请重试'}`);
   } finally {
     uploading.value = false;
-    uploadProgress.value = 0;
+    uploadProgress.value = 0; // Reset progress after completion or error
   }
 };
 
@@ -303,37 +273,17 @@ const handleLogout = async () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userName');
     localStorage.removeItem('token');
-
+    
     // Reset state
     isLoggedIn.value = false;
     userName.value = '';
-
+    
     // Redirect to home
     router.push('/');
   } catch (error) {
     console.error('登出操作失败:', error);
     // Ensure redirect even if error occurs
     router.push('/');
-  }
-};
-
-
-// Define toggleImageType and toggleWeatherCondition methods
-const toggleImageType = (type) => {
-  const index = formData.imageTypes.indexOf(type);
-  if (index === -1) {
-    formData.imageTypes.push(type);
-  } else {
-    formData.imageTypes.splice(index, 1);
-  }
-};
-
-const toggleWeatherCondition = (condition) => {
-  const index = formData.weatherConditions.indexOf(condition);
-  if (index === -1) {
-    formData.weatherConditions.push(condition);
-  } else {
-    formData.weatherConditions.splice(index, 1);
   }
 };
 
@@ -358,7 +308,6 @@ const toggleWeatherCondition = (condition) => {
   z-index: 1000;
   backdrop-filter: blur(12px);
 }
-
 .nav-content {
   max-width: 1200px;
   height: 100%;
@@ -373,7 +322,6 @@ const toggleWeatherCondition = (condition) => {
   align-items: center;
   gap: 2rem;
 }
-
 .logo {
   display: flex;
   align-items: center;
@@ -418,8 +366,6 @@ const toggleWeatherCondition = (condition) => {
 
 .upload-container {
   padding: 2rem;
-  width: 82%;
-  /* 设置宽度为100%以确保两个框等宽 */
 }
 
 .upload-container h2 {
@@ -429,19 +375,9 @@ const toggleWeatherCondition = (condition) => {
 }
 
 .upload-form {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
-}
-
-.image-upload-area,
-.submit-button {
-  grid-column: span 2;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-  gap: 0.5rem;
 }
 
 .form-group input,
@@ -454,7 +390,6 @@ const toggleWeatherCondition = (condition) => {
   color: #2c3e50;
   font-size: 0.95rem;
   transition: all 0.3s ease;
-  gap : 15rem;
 }
 
 .form-group input:focus,
@@ -462,7 +397,6 @@ const toggleWeatherCondition = (condition) => {
   outline: none;
   border-color: rgba(0, 122, 255, 0.5);
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-  gap: 15rem;
 }
 
 .submit-button {
@@ -475,6 +409,7 @@ const toggleWeatherCondition = (condition) => {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin-top: 0.5rem;
 }
 
 .submit-button:hover {
@@ -554,7 +489,6 @@ const toggleWeatherCondition = (condition) => {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
-
 
 .category-tag {
   padding: 0.5rem 1rem;
@@ -664,7 +598,6 @@ const toggleWeatherCondition = (condition) => {
   padding: 2.5rem;
   margin: 0 auto;
 }
-
 .glass-card h2 {
   text-align: center;
   margin-bottom: 1.5rem;
@@ -702,7 +635,7 @@ const toggleWeatherCondition = (condition) => {
   border-radius: 12px;
   min-width: 150px;
   z-index: 1000;
-
+  
 
 
   background: rgba(38, 45, 145, 0.8);
@@ -724,7 +657,7 @@ const toggleWeatherCondition = (condition) => {
     padding: 1.5rem;
     border-radius: 20px;
   }
-
+  
   .glass-card h2 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
@@ -736,38 +669,17 @@ const toggleWeatherCondition = (condition) => {
     padding: 1.25rem;
     border-radius: 16px;
   }
-
+  
   .auth-form input,
   .primary-button {
     padding: 0.65rem;
   }
 }
-
-
 .user-info {
   display: flex;
   align-items: center;
   gap: 1rem;
   position: relative;
-  padding: 10px; /* 增加padding以扩大悬停区域 */
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 20px;
-  right: 0;
-  transform: translateX(3%);
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 0.45rem;
-  box-shadow: 3px 4px 12px rgba(0, 0, 0, 0.1);
-  min-width: 150px;
-  display: none;
-  z-index: 1000;
-  margin-top: 25px;
-  transition: opacity 0.3s ease;
-  opacity: 10;
 }
 
 .user-info:hover .dropdown-menu {
@@ -867,6 +779,19 @@ const toggleWeatherCondition = (condition) => {
   font-weight: 500;
   color: #262d91;
 }
-
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  transform: translateX(-25%); /* 调整位置使其居中 */
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+  display: none;
+  z-index: 1000;
+}
 
 </style>

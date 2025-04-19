@@ -115,7 +115,7 @@ onMounted(() => {
         <div class="logo-area">
           <img src="/vite.svg" alt="系统Logo">
         </div>
-        <h2>创建新ByInfo ID</h2>
+        <h2>创建ByInfo ID</h2>
         <form @submit.prevent="register" class="auth-form" novalidate>
           <input v-model="username" type="text" placeholder="用户名" required />
           <input v-model="email" type="email" placeholder="邮箱" required />
@@ -176,7 +176,28 @@ onMounted(() => {
   align-items: center;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
-.auth-form input {
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 520px;
+  padding: 2rem;
+}
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 2.5rem;
+  width: 420px;
+  margin: 0 auto;
+}
+.glass-card h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+.glass-card input {
   width: 100%;
   padding: 0.75rem;
   margin-bottom: 1rem;
@@ -187,73 +208,91 @@ onMounted(() => {
   font-size: 0.95rem;
   transition: all 0.3s ease;
 }
+.glass-card input:focus {
+  outline: none;
+  border-color: rgba(0, 122, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.primary-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 12px;
+  background: rgba(38, 45, 145, 0.8);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.primary-button:hover {
+  background: rgba(38, 45, 145, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;
-  align-items: center;
-}
-.auth-wrapper {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  max-width: 520px;
-  padding: 2rem;
+  gap: 0.5rem;
+  width: 93.5%;
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(12px);
-  border-radius: 24px;
-  padding: 2.5rem;
-  width: 420px;
-  margin: 0 auto;
+.auth-form input {
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  color: #2c3e50;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
 }
 
-.glass-card input {
-  width: calc(100% - 2rem);
-  margin: 0 1rem 1rem 1rem;
+.auth-form input:focus {
+  outline: none;
+  border-color: rgba(0, 122, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
 }
 
-@media (min-width: 1024px) {
-  .auth-wrapper {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    border-radius: 32px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  }
-  
-  .glass-card {
-    padding: 3rem;
-  }
-}
 
+.auth-footer a {
+  color: #262d91;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
 @media (max-width: 768px) {
   .glass-card {
     padding: 1.5rem;
     border-radius: 20px;
   }
-  
   .glass-card h2 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
   }
 }
-
 @media (max-width: 480px) {
   .glass-card {
     padding: 1.25rem;
     border-radius: 16px;
   }
-  
   .glass-card input,
   .primary-button {
     padding: 0.65rem;
   }
-  
   .logo-area img {
     height: 40px;
   }
 }
-
 .logo-area {
   text-align: center;
   margin-bottom: 1.5rem;
@@ -268,6 +307,7 @@ onMounted(() => {
   margin-bottom: 1.5rem;
   color: #2c3e50;
   font-weight: 500;
+  gap:1rem;
 }
 
 .glass-card input {
@@ -293,7 +333,7 @@ onMounted(() => {
   padding: 0.75rem;
   border: none;
   border-radius: 12px;
-  background: rgba(38, 45, 145, 0.281);
+  background: rgba(38, 45, 145, 0.8);
   color: white;
   font-weight: 500;
   cursor: pointer;
@@ -302,9 +342,9 @@ onMounted(() => {
 }
 
 .primary-button:hover {
-  background: rgba(31, 38, 135, 0.15);
+  background: rgba(38, 45, 145, 0.9);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .auth-footer {
@@ -315,7 +355,7 @@ onMounted(() => {
 }
 
 .auth-footer a {
-  color: rgba(88, 51, 173, 0.466);
+  color: rgba(38, 45, 145, 0.8);
   text-decoration: none;
   font-weight: 500;
   margin-left: 0.25rem;
@@ -337,8 +377,9 @@ onMounted(() => {
   padding: 0.75rem 1rem;
   border: none;
   border-radius: 12px;
-  background: rgba(38, 45, 145, 0.281);
-  color: white;
+  background: rgba(38, 45, 145, 0.15);
+  color: #262d91;
+
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;

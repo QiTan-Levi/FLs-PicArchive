@@ -1,12 +1,12 @@
 <template>
   <div class="home-container bg-gradient-to-r from-blue-500 to-purple-500">
     <!-- 顶部导航栏 -->
-    <nav class="nav-bar glass-card">
+    <nav class="nav-bar ">
     <div class="nav-content">
       <div class="nav-left">
         <router-link to="/" class="logo">
           <img src="@/assets/logo.svg" alt="Logo" class="logo-image">
-          <span class="logo-text">图库</span>
+          <span class="logo-text">ByInfo - Picture Archieve</span>
         </router-link>
         <div class="search-box">
           <input type="text" placeholder="搜索图片..." v-model="searchQuery">
@@ -17,14 +17,12 @@
       </div>
       <div class="nav-right">
         <div v-if="isLoggedIn" class="user-info">
-          <img :src="userAvatar || '/defuutt-agatar.pn'" alt="头像" class="user-avatar">
           <span class="user-name">{{ userName }}</span>
           <div class="dropdown-menu">
             <router-link to="/upload" class="dropdown-item">上传图片</router-link>
             <router-link to="/my-profile" class="dropdown-item">个人资料</router-link>
             <button @click="handleLogout" class="dropdown-item logout-button">退出登录</button>
           </div>
-          <router-link to="/upload" class="nav-button">上传</router-link>
         </div>
         <div v-else>
           <router-link to="/account/login" class="nav-button">登录</router-link>
@@ -33,48 +31,58 @@
       </div>
     </div>
   </nav>
-    <!-- 主要内容区 -->
-    <main class="main-content">
-      <div class="filters glass-card">
-        <button 
-          v-for="category in categories" 
-          :key="category"
-          :class="['filter-button', { active: selectedCategory === category }]"
-          @click="selectCategory(category)"
-        >
-          {{ category }}
-        </button>
+  <!-- 轮播图区域 -->
+  <div class="carousel">
+    <div v-for="(image, index) in featuredImages" :key="index" class="carousel-item">
+      <img :src="image.url" :alt="image.title" class="carousel-image">
+      <div class="carousel-info">
+        <h3>{{ image.title }}</h3>
+        <p>{{ image.description }}</p>
       </div>
-
-      <div class="image-grid">
-        <div v-for="image in images" :key="image.id" class="image-card glass-card">
-          <img :src="image.url" :alt="image.title" class="grid-image">
-          <div class="image-info">
-            <h3>{{ image.title }}</h3>
-            <p>{{ image.description }}</p>
-          </div>
-        </div>
+    </div>
+    <div class="carousel-indicators">
+      <span v-for="(image, index) in featuredImages" :key="index" :class="{'active': currentSlide === index}" @click="goToSlide(index)"></span>
+    </div>
+  </div>
+  <!-- 分类筛选区 -->
+  <div class="filters">
+    <button 
+      v-for="category in categories" 
+      :key="category"
+      :class="['filter-button', { active: selectedCategory === category }]"
+      @click="selectCategory(category)"
+    >
+      {{ category }}
+    </button>
+  </div>
+  <!-- 热门图片展示区 -->
+  <div class="image-grid">
+    <div v-for="image in images" :key="image.id" class="image-card">
+      <img :src="image.url" :alt="image.title" class="grid-image">
+      <div class="image-info">
+        <h3>{{ image.title }}</h3>
+        <p>{{ image.description }}</p>
       </div>
-    </main>
-
-    <!-- 底部页脚 -->
-    <footer class="footer glass-card">
-      <div class="footer-content">
-        <div class="footer-section">
-          <a href="#" class="social-link">关于我们</a>
-          <a href="#" class="social-link">使用条款</a>
-          <a href="#" class="social-link">隐私政策</a>
-        </div>
-        <div class="footer-section">
-          <span>© 2024 图库. All rights reserved.</span>
-        </div>
+    </div>
+  </div>
+  <!-- 底部页脚 -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <a href="#" class="social-link">关于我们</a>
+        <a href="#" class="social-link">使用条款</a>
+        <a href="#" class="social-link">隐私政策</a>
       </div>
-    </footer>
+      <div class="footer-section">
+        <span>© 2024 图库. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, reactive } from 'vue';
 // import { useStore } from 'vuex'; // Removed Vuex import
 import { useRouter } from 'vue-router';
 
@@ -91,20 +99,44 @@ const searchQuery = ref('');
 // Placeholder for login state (can be replaced with localStorage or other methods)
 const isLoggedIn = ref(false); // Example: Default to false
 const userName = ref(''); // Example: Default empty
-const userAvatar = ref(''); // Example: Default empty
+const userAvatar = ref(''); // 初始为空
+const featuredImages = ref([]); // 初始化为空数组
+
+
 const images = ref([]); // Example: Default empty array
 
-// Removed category logic
-// const categories = ['全部', '民航', '军用', '通用'];
-// const selectedCategory = ref('全部');
+// Category logic
+const categories = ['全部', '民航', '军用', '通用'];
+const selectedCategory = ref('全部');
 
 // Simplified onMounted - remove store actions
 onMounted(async () => {
-  // Check local storage for login state, for example
   isLoggedIn.value = localStorage.getItem('isLoggedIn') === 'true';
   userName.value = localStorage.getItem('userName') || '';
-  // Fetch initial images if needed (without store)
-  // await fetchImages(); // Example: Call a local fetch function if needed
+  try {
+    const featuredResponse = await fetch('/api/featured-images');
+    if (!featuredResponse.ok) throw new Error('Failed to fetch featured images');
+    featuredImages.value = await featuredResponse.json();
+
+    const imagesResponse = await fetch('/api/images');
+    if (!imagesResponse.ok) throw new Error('Failed to fetch images');
+    images.value = await imagesResponse.json();
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+});
+const fileInput = ref(null);
+const previewImage = ref('');
+const uploadProgress = ref(0);
+const uploading = ref(false);
+
+const formData = reactive({
+  model: '',
+  location: '',
+  shootTime: '',
+  description: '',
+  categories: []
 });
 
 // 搜索功能 (kept)
@@ -126,9 +158,10 @@ const search = () => {
 // Simplified logout - remove store action
 const handleLogout = async () => {
   try {
-    // Clear local storage
+    // Clear all auth related local storage
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userName');
+    localStorage.removeItem('token');
     isLoggedIn.value = false;
     userName.value = '';
     // Redirect
@@ -167,6 +200,7 @@ const handleLogout = async () => {
   height: 70px;
   padding: 0 2rem;
   z-index: 1000;
+  backdrop-filter: blur(12px);
 }
 
 .nav-content {
@@ -341,6 +375,7 @@ const handleLogout = async () => {
   align-items: center;
   gap: 1rem;
   position: relative;
+  padding: 10px; /* 增加padding以扩大悬停区域 */
 }
 
 .user-avatar {
@@ -359,21 +394,25 @@ const handleLogout = async () => {
 
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: 20px;
   right: 0;
-  transform: translateX(-25%); /* 调整位置使其居中 */
+  transform: translateX(3%);
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  padding: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 0.45rem;
+  box-shadow: 3px 4px 12px rgba(0, 0, 0, 0.1);
   min-width: 150px;
   display: none;
   z-index: 1000;
+  margin-top: 25px;
+  transition: opacity 0.3s ease;
+  opacity: 10;
 }
 
 .user-info:hover .dropdown-menu {
   display: block;
+  opacity: 10;
 }
 
 .dropdown-item {

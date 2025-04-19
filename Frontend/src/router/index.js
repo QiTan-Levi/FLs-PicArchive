@@ -34,4 +34,22 @@ const router = createRouter({
   routes
 })
 
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // 检查用户是否登录
+    if (!localStorage.getItem('token')) {
+      next({
+        path: '/account/login',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
+})
+
 export default router

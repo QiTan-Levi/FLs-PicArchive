@@ -1,71 +1,107 @@
 -- 用户表
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    avatar_id VARCHAR(24) COMMENT 'MongoDB中存储的头像文件ID',
-    RegisTime DATETIME NOT NULL,
-    last_login DATETIME,
-    status TINYINT DEFAULT 1 COMMENT '1-正常 0-禁用'
+    id INT AUTO_INCREMENT PRIMARY KEY, -- 用户ID
+    username VARCHAR(50) NOT NULL UNIQUE, -- 用户名
+    password VARCHAR(255) NOT NULL, -- 密码
+    email VARCHAR(100) NOT NULL UNIQUE, -- 邮箱
+    avatar VARCHAR(255) COMMENT "用户头像", -- 用户头像
+    regis_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 注册时间
+    last_login DATETIME, -- 上次登录时间
+    status TINYINT DEFAULT 1 COMMENT '1-正常 0-禁用' -- 用户状态
 );
 
--- 图片表
+-- 图片表，合并已接受和待审核图片表的部分字段
 CREATE TABLE images (
+    -- 图片的唯一标识
     id INT AUTO_INCREMENT PRIMARY KEY,
+    -- 用户的唯一标识
     user_id INT NOT NULL,
-    file_id VARCHAR(24) NOT NULL COMMENT 'MongoDB中存储的图片文件ID',
-    aircraft_model VARCHAR(100),
-    location VARCHAR(255),
+    -- 拍摄的具体时间
     shooting_time DATETIME,
-    description TEXT,
+    -- 飞机的注册号
+    registration_number VARCHAR(50),
+    -- 当时执行航班号
+    flight_number VARCHAR(50),
+    -- 航司或运营人名称
+    airline_operator VARCHAR(255),
+    -- 飞机的机型
+    aircraft_model VARCHAR(255),
+    -- 图片的拍摄地点
+    shooting_location VARCHAR(255),
+    -- 图片类型
+    image_type SET('Airport', 'Cockpit', 'Artistic', 'Ground', 'Cargo', 'Accident', 'Special_Livery', 'Night','Nospecial') NOT NULL DEFAULT 'Nospecial',
+    -- 天气状况（建议以当时ATIS为准，若未知则以图片为准）
+    weather SET('Sunny', 'Cloudy', 'Overcast', 'Rain', 'Snow', 'Fog', 'Haze', 'Freezing', 'Hail') NOT NULL,
+    -- 图片的描述
+    image_description TEXT,
+    -- 图片的位置信息
+    location VARCHAR(255),
+    -- 图片的上传时间
     upload_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    status TINYINT DEFAULT 0 COMMENT '0-待审核 1-已通过 2-已拒绝',
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    -- 是否为精选图片
+    is_featured TINYINT DEFAULT 0 COMMENT '0-普通 1-精选',
+    -- 图片的文件类型，限定为 jpg/jpeg
+    file_type ENUM('jpg', 'jpeg') NOT NULL,
+    -- 审核人/待审核人
+    reviewer_id INT,
+    -- 审核时间
+    review_time DATETIME,
+    -- 图片数据，以 BLOB 类型存储，最大可存储 300MB
+    image_data LONGBLOB NOT NULL,
+    -- 用于区分图片是待审核还是已审核
+    is_pending TINYINT DEFAULT 1 COMMENT '1-待审核 0-已审核',
+    -- 外键约束，关联 users 表的 id 字段
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    -- 为 registration_number 字段创建索引，提高查询效率
+    INDEX idx_registration_number (registration_number),
+    -- 为 aircraft_model 字段创建索引，提高查询效率
+    INDEX idx_aircraft_model (aircraft_model),
+    -- 为 airline_operator 字段创建索引，提高查询效率
+    INDEX idx_airline_operator (airline_operator),
+    -- 为 shooting_location 字段创建索引，提高查询效率
+    INDEX idx_shooting_location (shooting_location)
 );
 
--- 评论表
+-- 点赞、评论表
 CREATE TABLE comments (
+    -- 评论、点赞ID
     id INT AUTO_INCREMENT PRIMARY KEY,
+    -- 类型
+    type TINYINT DEFAULT 0 COMMENT '0-评论 1-点赞',
+    -- 图片ID
     image_id INT NOT NULL,
+    -- 用户ID
     user_id INT NOT NULL,
-    content TEXT NOT NULL,
-    comment_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (image_id) REFERENCES images(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 审图任务表
-CREATE TABLE review_tasks (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    image_id INT NOT NULL,
-    reviewer_id INT NOT NULL,
-    result TINYINT COMMENT '1-通过 0-拒绝',
-    score TINYINT COMMENT '1-5分',
-    review_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-    remarks TEXT,
-    FOREIGN KEY (image_id) REFERENCES images(id),
-    FOREIGN KEY (reviewer_id) REFERENCES users(id)
-);
-
--- 审图方案表
-CREATE TABLE review_schemes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    rules JSON COMMENT '存储JSON格式的审核规则',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time DATETIME ON UPDATE CURRENT_TIMESTAMP
-);
-
--- 系统日志表
-CREATE TABLE system_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    operator_id INT,
-    operation VARCHAR(50) NOT NULL,
+    -- 评论内容
     content TEXT,
-    result TINYINT COMMENT '1-成功 0-失败',
-    ip_address VARCHAR(50),
-    operation_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (operator_id) REFERENCES users(id)
+    -- 评论时间
+    comment_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- 外键关联图片表
+    FOREIGN KEY (image_id) REFERENCES images(id),
+    -- 外键关联用户表
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    -- 评论内容不能为空，点赞内容可以为空
+    CHECK ((type = 0 AND content IS NOT NULL) OR (type = 1))
 );
+
+-- 操作记录表//存储哪个id的谁（操作员id）的何时（操作时间）在何地（操作IP地址）操作了什么（操作内容、操作详情）怎么了（操作结果）哪个id的照片（图片id），这个操作的id（操作id）
+CREATE TABLE system_logs (
+    -- 操作ID
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    -- 操作人ID
+    operator_id INT,
+    -- 图片ID
+    image_id INT,
+    -- 操作内容
+    operation VARCHAR(50) NOT NULL,
+    -- 操作详情
+    content TEXT,
+    -- 操作结果
+    result TINYINT COMMENT '1-成功 0-失败',
+    -- 操作IP地址
+    ip_address VARCHAR(50),
+    -- 操作时间
+    operation_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- 外键关联用户表
+    FOREIGN KEY (operator_id) REFERENCES users(id)
+);    
