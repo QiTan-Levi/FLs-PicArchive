@@ -204,7 +204,7 @@ const handleLogout = async () => {
 }
 
 .nav-content {
-  max-width: 1200px;
+  max-width: 1750px;
   height: 100%;
   margin: 0 auto;
   display: flex;
@@ -278,10 +278,10 @@ const handleLogout = async () => {
 }
 
 /* 主要内容区样式 */
-.main-content {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 2rem;
+.nav-content {
+  max-width:1750px;
+  height: 100%;
+  margin: 0 auto;
 }
 
 .filters {
@@ -348,7 +348,7 @@ const handleLogout = async () => {
 }
 
 .footer-content {
-  max-width: 1200px;
+  max-width: 1750px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;

@@ -8,7 +8,6 @@
             <img src="@/assets/logo.svg" alt="Logo" class="logo-image">
             <span class="logo-text">ByInfo - Fs Picture Archieve</span>
           </router-link>
-
         </div>
         <div class="nav-right">
           <div v-if="isLoggedIn" class="user-info">
@@ -27,8 +26,35 @@
       </div>
     </nav>
     <!-- 主要内容区 -->
-    <main class="main-content">
-      <div class="upload-container glass-card">
+    <main class="main-content hgs-container">
+      <div class="notice-container glass-card" style="width: 50%; margin-right: 1%;">
+        <h1>项目上传须知</h1>
+        <p>为了打造一个优质的原创平台，在上传图片时，您需要仔细阅读并遵守以下要求：</p>
+        <ul style="font-family: hermit;font-size: 16px;line-height: 50px">
+          <li>
+            <strong>格式要求</strong>：仅接受 JPG/JPEG 格式图片，其他格式无法识别，请提前完成格式转环换。
+          </li>
+          <li>
+            <strong>大小限制</strong>：单张图片文件大小不得超过 300MB，过大的文件会上传失败，请提前压缩处理。
+          </li>
+          <li>
+            <strong>内容规范</strong>：请勿上传带有明显人脸的照片，以及包含网络梗图的内容。
+          </li>
+          <li>
+            <strong>权益保护</strong>：您上传的图片须确保不侵犯任何个人、组织、企业等主体的合法权益，包括但不限于肖像权、著作权、商标权等。
+          </li>
+          <li>
+            <strong>原创声明</strong>：所有上传图片必须为本人原创拍摄，请勿上传非本人拍摄的图片，禁止任何形式的抄袭。
+          </li>
+          <li>
+            <strong>信息完整性</strong>：若图片涉及特定对象或场景，相关机型、编号、主体名称等信息缺失时，统一标注 “N/A”。
+          </li>
+          <li>
+            <strong>内容合规</strong>：上传内容需严格遵守国家法律法规及平台规定，禁止包含政治敏感、虚假、侮辱、诽谤等违规信息。
+          </li>
+        </ul>
+      </div>
+      <div class=" upload-container glass-card">
         <h2>上传图片</h2>
         <form @submit.prevent="handleSubmit" class="upload-form">
           <!-- 图片上传区域 -->
@@ -44,34 +70,32 @@
 
           <!-- 图片信息表单 -->
 
-
-          <div class="upload-container glass-card" style="width: 81%; margin-left: -1%;">
-            <div class="info-section">
-              <h3>飞机信息</h3>
-              <div class="form-group">
-                <label>航班号</label>
-                <input type="text" v-model="formData.flightNumber" placeholder="e.g. HU7051 / MU501" required>
-              </div>
-              <div class="form-group">
-                <label>注册号</label>
-                <input type="text" v-model="formData.registrationNumber" placeholder="e.g. B-2447 / JA383A"required>
-              </div>
-              <div class="form-group">
-                <label>飞机型号</label>
-                <input type="text" v-model="formData.model" placeholder="e.g. Airbus A320 / Boeing 787-8" required>
-              </div>
-              <div class="form-group">
-                <label>航司</label>
-                <input type="text" v-model="formData.airlineOperator" placeholder="e.g. 中国南方航空 / 厦门航空" required>
-              </div>
+          <div class="info-section upload-container glass-card">
+            <h3>飞机信息</h3>
+            <div class="form-group">
+              <label>航班号</label>
+              <input type="text" v-model="formData.flightNumber" placeholder="e.g. HU7051 / MU501" required>
+            </div>
+            <div class="form-group">
+              <label>注册号</label>
+              <input type="text" v-model="formData.registrationNumber" placeholder="e.g. B-2447 / JA383A" required>
+            </div>
+            <div class="form-group">
+              <label>飞机型号</label>
+              <input type="text" v-model="formData.model" placeholder="e.g. Airbus A320-251N / Boeing 787-8" required>
+            </div>
+            <div class="form-group">
+              <label>航司</label>
+              <input type="text" v-model="formData.airlineOperator" placeholder="e.g. 中国南方航空 / 厦门航空" required>
             </div>
           </div>
+
           <div class="upload-container glass-card " style="width: 86.3%;">
             <div class="photo-section">
               <h3>照片信息</h3>
               <div class="form-group">
                 <label>拍摄时间</label>
-                <input type="datetime-local" v-model="formData.shootTime" required>
+                <input type="datetime-local" style="font-family: hermit;" v-model="formData.shootTime" required>
               </div>
               <div class="form-group">
                 <label>拍摄地点</label>
@@ -90,8 +114,8 @@
               <div class="form-group">
                 <label>类型（可以留空）</label>
                 <div class="category-suggestions">
-                  <button v-for="type in ['机场', '驾驶舱', '艺术', '地服', '货运', '彩绘', '夜摄']" :key="type"
-                    type="button" :class="['category-tag', { active: formData.imageTypes.includes(type) }]"
+                  <button v-for="type in ['机场', '驾驶舱', '艺术', '地服', '货运', '彩绘', '夜摄']" :key="type" type="button"
+                    :class="['category-tag', { active: formData.imageTypes.includes(type) }]"
                     @click="toggleImageType(type)">
                     {{ type }}
                   </button>
@@ -101,6 +125,14 @@
           </div>
 
 
+          <div class="upload-container glass-card" style="grid-column: span 2;width: 92.5%; margin-left: -0.6%;">
+            <h3>上传附加</h3>
+            <div class="form-group">
+              <label>图片描述</label>
+              <textarea v-model="formData.description" rows="4" placeholder="可以填写表单未提及但值得说明的内容"
+                style="resize: none;width: 97%;height: 100%;font-size: 15px;margin-left: -1%;font-family:hermit "></textarea>
+            </div>
+          </div>
           <!-- 上传进度 -->
           <div class="upload-progress" v-if="uploadProgress > 0 && uploadProgress < 100">
             <div class="progress-bar">
@@ -108,18 +140,11 @@
             </div>
             <span>{{ uploadProgress }}%</span>
           </div>
-          <div class="upload-container glass-card" style="grid-column: span 2;width: 92.5%; margin-left: -0.6%;">
-          <h3>上传附加</h3>
-          <div class="form-group">
-            <label>图片描述</label>
-            <textarea v-model="formData.description" rows="4" placeholder="可以填写表单未提及但值得说明的内容" style="resize: none;width: 97%;height: 100%;font-size: 15px;margin-left: -1%;font-family:hermit "></textarea>
-          </div>
-        </div>
-          <button type="submit" class="submit-button" :disabled="uploading">{{ uploading ? '上传中...' : '提交' }}</button>
+                      <button type="submit" class="submit-button" :disabled="uploading">{{ uploading ? '上传中...' : '提交' }}</button>
+          
         </form>
       </div>
     </main>
-
   </div>
 </template>
 
@@ -345,6 +370,17 @@ const toggleWeatherCondition = (condition) => {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding-top: 80px;
+  padding-left: 1rem;
+  /* 减少左边距 */
+  padding-right: 1rem;
+  /* 减少右边距 */
+}
+
+
+
+.hgs-container {
+  display: grid;
+  grid-template-columns: 1fr;
 }
 
 /* 导航栏样式 */
@@ -360,7 +396,7 @@ const toggleWeatherCondition = (condition) => {
 }
 
 .nav-content {
-  max-width: 1200px;
+  max-width: 1750px;
   height: 100%;
   margin: 0 auto;
   display: flex;
@@ -410,14 +446,23 @@ const toggleWeatherCondition = (condition) => {
 }
 
 /* 主要内容区样式 */
+
 .main-content {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 2rem;
+  max-width: 1750px;
+  padding: 0.2rem;
+  margin: 0 auto;
+  display: flex;
+  /*左右布局*/
+  justify-content: center;
+  /*内容居中*/
+  gap: 2rem;
+  height: 100%;
+  width: 100%;
 }
 
+
+
 .upload-container {
-  padding: 2rem;
   width: 82%;
   /* 设置宽度为100%以确保两个框等宽 */
 }
@@ -426,6 +471,11 @@ const toggleWeatherCondition = (condition) => {
   text-align: center;
   margin-bottom: 2rem;
   color: #262d91;
+}
+
+.notice-container {
+  width: 120%;
+  /* 设置宽度为100%以确保两个框等宽 */
 }
 
 .upload-form {
@@ -454,7 +504,7 @@ const toggleWeatherCondition = (condition) => {
   color: #2c3e50;
   font-size: 0.95rem;
   transition: all 0.3s ease;
-  gap : 15rem;
+  gap: 15rem;
 }
 
 .form-group input:focus,
@@ -749,7 +799,8 @@ const toggleWeatherCondition = (condition) => {
   align-items: center;
   gap: 1rem;
   position: relative;
-  padding: 10px; /* 增加padding以扩大悬停区域 */
+  padding: 10px;
+  /* 增加padding以扩大悬停区域 */
 }
 
 .dropdown-menu {
@@ -867,6 +918,4 @@ const toggleWeatherCondition = (condition) => {
   font-weight: 500;
   color: #262d91;
 }
-
-
 </style>
