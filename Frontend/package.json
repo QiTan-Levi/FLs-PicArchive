@@ -1,24 +1,26 @@
 {
   "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.",
+  "main": "tailwind.config.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "vite": "^6.3.2",
+    "vue": "^3.5.13"
   },
   "dependencies": {
     "axios": "^1.8.4",
     "cors": "^2.8.5",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0",
-    "vue-select": "^3.20.4",
-    "vuex": "^4.1.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.1",
-    "tailwindcss": "^3.4.17",
-    "vite": "^6.2.0"
+    "router": "^2.2.0",
+    "vue-router": "^4.2.4",
+    "vue-select": "^4.0.0-beta.6"
   }
 }
