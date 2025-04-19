@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ByInfo Service 验证码 - Fs Picture Archieve</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            color: #2c3e50;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-area {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+        
+        .code-box {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .verification-code {
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            color: rgba(38, 45, 145, 0.8);
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+        
+        .footer {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: rgba(38, 45, 145, 0.281);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .button:hover {
+            background: rgba(31, 38, 135, 0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .email-container {
+                padding: 1.5rem;
+                border-radius: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .email-container {
+                padding: 1.25rem;
+                border-radius: 16px;
+            }
+            
+            .verification-code {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="logo-area">
+            <img src="logo.svg" alt="ByInfo Logo" width="120">
+        </div>
+        
+        <h1>您的验证码</h1>
+        
+        <p>您好，感谢您使用ByInfo Service。以下是您的验证码：</p>
+        
+        <div class="code-box">
+            <div class="verification-code">{{verification_code}}</div>
+            <p>此验证码将在5分钟后失效</p>
+        </div>
+        
+        <p>如果您没有请求此验证码，请忽略此邮件。</p>
+        
+        <div class="footer">
+            <p>ByInfo Service - Fs Picture Archive Team</p>
+        </div>
+    </div>
+</body>
+</html>
