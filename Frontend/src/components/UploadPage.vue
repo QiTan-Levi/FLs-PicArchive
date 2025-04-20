@@ -86,7 +86,8 @@
             </div>
             <div class="form-group">
               <label>航司</label>
-              <input type="text" v-model="formData.airlineOperator" placeholder="e.g. 中国南方航空 / 厦门航空" required>
+              <v-select v-model="formData.airlineOperator" :options="airlineOptions" placeholder="请选择或输入航司" searchable
+                :reduce="option => option || null" />
             </div>
           </div>
 
@@ -140,8 +141,8 @@
             </div>
             <span>{{ uploadProgress }}%</span>
           </div>
-                      <button type="submit" class="submit-button" :disabled="uploading">{{ uploading ? '上传中...' : '提交' }}</button>
-          
+          <button type="submit" class="submit-button" :disabled="uploading">{{ uploading ? '上传中...' : '提交' }}</button>
+
         </form>
       </div>
     </main>
@@ -157,6 +158,10 @@ import 'vue-select/dist/vue-select.css';
 
 const router = useRouter();
 const searchQuery = ref('');
+// Remove these unnecessary lines:
+// const app = createApp(App);
+// app.use(Antd);
+// app.mount('#app');
 
 // Removed Vuex state dependencies
 // const isLoggedIn = computed(() => store.state.isLoggedIn);
@@ -180,6 +185,15 @@ const fileInput = ref(null);
 const previewImage = ref('');
 const uploadProgress = ref(0);
 const uploading = ref(false);
+
+
+
+const airlineOptions = ref([
+  { label: '中国南方航空', value: '中国南方航空' },
+  { label: '厦门航空', value: '厦门航空' },
+  { label: '中国国际航空', value: '中国国际航空' },
+  { label: '海南航空', value: '海南航空' }
+]);
 
 const formData = reactive({
   model: '',
@@ -376,13 +390,39 @@ const toggleWeatherCondition = (condition) => {
   /* 减少右边距 */
 }
 
+.my-v-select {
+  z-index: 9990 !important;
+  /* 设置一个较大的值，确保在其他元素之上 */
+}
 
+.my-v-select.v-select__dropdown {
+  z-index: 9991 !important;
+  /* 确保下拉菜单也在顶层 */
+}
 
 .hgs-container {
   display: grid;
   grid-template-columns: 1fr;
 }
 
+.form-group {
+  position: relative;
+  /* 确保子元素的 z - index 能正常生效 */
+  z-index: 1;
+  /* 若值过大可能会导致子元素被限制在一定层级内 */
+  margin-bottom: 1rem;
+
+}
+
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.v-select {
+  width: 100%;
+}
 /* 导航栏样式 */
 .nav-bar {
   position: fixed;
@@ -464,6 +504,7 @@ const toggleWeatherCondition = (condition) => {
 
 .upload-container {
   width: 82%;
+  z-index: 10;
   /* 设置宽度为100%以确保两个框等宽 */
 }
 
@@ -713,6 +754,7 @@ const toggleWeatherCondition = (condition) => {
   border-radius: 24px;
   padding: 2.5rem;
   margin: 0 auto;
+  z-index: 11;
 }
 
 .glass-card h2 {
