@@ -28,10 +28,8 @@ CREATE TABLE images (
     airline_operator VARCHAR(255),
     -- 飞机的机型
     aircraft_model VARCHAR(255),
-    -- 图片的拍摄地点
-    shooting_location VARCHAR(255),
     -- 图片类型
-    image_type SET('Airport', 'Cockpit', 'Artistic', 'Ground', 'Cargo', 'Accident', 'Special_Livery', 'Night','Nospecial') NOT NULL DEFAULT 'Nospecial',
+    image_type SET('Airport', 'Cockpit', 'Artistic', 'Ground', 'Cargo', 'Special_Livery', 'Night','Nospecial') NOT NULL DEFAULT 'Nospecial',
     -- 天气状况（建议以当时ATIS为准，若未知则以图片为准）
     weather SET('Sunny', 'Cloudy', 'Overcast', 'Rain', 'Snow', 'Fog', 'Haze', 'Freezing', 'Hail') NOT NULL,
     -- 图片的描述

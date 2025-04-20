@@ -1,4 +1,4 @@
-<template >
+<template>
   <div class="home-container bg-gradient-to-r from-blue-500 to-purple-500">
     <!-- 顶部导航栏 -->
     <nav class="nav-bar">
@@ -63,8 +63,8 @@
             <ul>
               <li><strong>注册号、机型</strong>
                 <ul>
-                  <li>空客机型至少填出Airbus <u>A321</u></li>
-                  <li>波音需填出Boeing 777-300ER</li>
+                  <li>空客机型需填出Airbus <u>A321</u></li>
+                  <li>波音机型需填出Boeing <u>777-300ER</u></li>
                 </ul>
               </li>
               <li><strong>航空公司</strong>：除内地航司外，请填写英文全称。 </li>
@@ -120,11 +120,12 @@
                 <li v-else>
                   <ul style="list-style-type:'·';padding-left: 0;margin-left: 0;">
                     <li><strong>{{ exifData.airtistacopryrgt || 'N/A' }}</strong></li>
-                    <li><strong>{{ exifData.cameraMake || 'N/A' }}&nbsp</strong> {{ exifData.cameraModel || 'N/A' }}
-                    </li>
-                    <li><strong>SS&nbsp&nbsp</strong>{{ exifData.exposureTime || 'N/A' }}</li>
-                    <li><strong>F &nbsp</strong>{{ exifData.apertureValue || 'N/A' }}</li>
+                    <li><strong>{{ exifData.cameraMake || 'N/A' }}</strong> {{ exifData.cameraModel || 'N/A' }} </li>
                     <li><strong>ISO </strong>{{ exifData.isoSpeed || 'N/A' }}</li>
+
+                    <li><strong>SS&nbsp</strong>{{ exifData.exposureTime || 'N/A' }}</li>
+                    <li><strong>F </strong>{{ exifData.apertureValue || 'N/A' }}</li>
+                    <li><strong>FL </strong>{{ exifData.focalLength || 'N/A' }}</li>
                   </ul>
                 </li>
               </ul>
@@ -187,8 +188,8 @@
                     <option value="UTC-11">UTC-11 (中途岛)</option>
                     <option value="UTC-12">UTC-12 (贝克岛)</option>
                   </select>
-                  <input type="datetime-local" style="font-family: hermitMaple Mono NF CN Light; width: 60%;" v-model="formData.shootTime"
-                    required>
+                  <input type="datetime-local" style="font-family: hermitMaple Mono NF CN Light; width: 60%;"
+                    v-model="formData.shootTime" required>
 
                 </div>
               </div>
@@ -200,20 +201,20 @@
               <div class="form-group">
                 <label>天气</label>
                 <div class="category-suggestions">
-                  <button v-for="condition in ['晴', '多云', '阴', '雨', '雪', '雾', '霾', '雹']" :key="condition" type="button"
-                    :class="['category-tag', { active: formData.weatherConditions.includes(condition) }]"
-                    @click="toggleWeatherCondition(condition)">
-                    {{ condition }}
+                  <button v-for="condition in weatherOptions" :key="condition.label" type="button"
+                    :class="['category-tag', { active: formData.weatherConditions.includes(condition.value) }]"
+                    @click="toggleWeatherCondition(condition.value)">
+                    {{ condition.label }}
                   </button>
                 </div>
               </div>
               <div class="form-group">
                 <label>类型（可以留空）</label>
                 <div class="category-suggestions">
-                  <button v-for="type in ['机场', '驾驶舱', '艺术', '地服', '货运', '彩绘', '夜摄']" :key="type" type="button"
-                    :class="['category-tag', { active: formData.imageTypes.includes(type) }]"
-                    @click="toggleImageType(type)">
-                    {{ type }}
+                  <button v-for="type in imageTypeOptions" :key="type.label" type="button"
+                    :class="['category-tag', { active: formData.imageTypes.includes(type.value) }]"
+                    @click="toggleImageType(type.value)">
+                    {{ type.label }}
                   </button>
                 </div>
               </div>
@@ -282,6 +283,7 @@ const uploadProgress = ref(0);
 const uploading = ref(false);
 
 const formData = reactive({
+  username: userName.value,
   model: '',
   location: '',
   shootTime: '',
@@ -292,13 +294,30 @@ const formData = reactive({
   airlineOperator: '',
   imageTypes: [],
   weatherConditions: [],
-  locationInfo: '',
   timeZone: 'UTC+8' // 设置默认时区为北京时间
 });
 
 
+const weatherOptions = [
+  { label: '晴', value: 'Sunny' },
+  { label: '多云', value: 'Cloudy' },
+  { label: '阴', value: 'Overcast' },
+  { label: '雨', value: 'Rain' },
+  { label: '雪', value: 'Snow' },
+  { label: '雾', value: 'Fog' },
+  { label: '霾', value: 'Haze' },
+  { label: '雹', value: 'Hail' }
+];
 
-const suggestedCategories = ref(['军用', '民用', '客机', '货机', '战斗机', '直升机']);
+const imageTypeOptions = [
+  { label: '机场', value: 'Airport' },
+  { label: '驾驶舱', value: 'Cockpit' },
+  { label: '艺术', value: 'Artistic' },
+  { label: '地服', value: 'Ground' },
+  { label: '货运', value: 'Cargo' },
+  { label: '彩绘', value: 'Special_Livery' },
+  { label: '夜摄', value: 'Night' },
+];
 
 const triggerFileInput = () => {
   //限制input的文件类型
@@ -400,13 +419,19 @@ const handleSubmit = async () => {
   uploadProgress.value = 0;
 
   const uploadData = new FormData();
-  uploadData.append('image', selectedFile.value);
-  uploadData.append('model', formData.model);
-  uploadData.append('location', formData.location);
+  uploadData.append('username', userName.value);
+  uploadData.append('timeZone', formData.timeZone);
   uploadData.append('shootTime', formData.shootTime);
+  uploadData.append('registrationNumber', formData.registrationNumber);
+  uploadData.append('flightNumber', formData.flightNumber);
+  uploadData.append('model', formData.model);
+  uploadData.append('weatherConditions', JSON.stringify(formData.weatherConditions || [])); // 确保不为空
   uploadData.append('description', formData.description);
-  uploadData.append('categories', JSON.stringify(formData.categories));
-
+  uploadData.append('location', formData.location);
+  uploadData.append('imagedata', selectedFile.value);
+  uploadData.append('categories', JSON.stringify(formData.imageTypes || [])); // 确保不为空
+  uploadData.append('file', selectedFile.value);
+  uploadData.append('airlineOperator', formData.airlineOperator);
   try {
     const response = await axios.post('/api/upload', uploadData, {
       headers: {
@@ -420,6 +445,7 @@ const handleSubmit = async () => {
 
     if (response.status === 200 || response.status === 201) {
       alert('上传成功！');
+      console.log('Upload response:', response.data);
       formData.model = '';
       formData.location = '';
       formData.shootTime = '';
@@ -428,7 +454,7 @@ const handleSubmit = async () => {
       previewImage.value = '';
       selectedFile.value = null;
       fileInput.value.value = '';
-      router.push('/');
+      router.push('/upload')//刷新页面
     } else {
       throw new Error(response.data.message || '上传失败');
     }
@@ -528,17 +554,29 @@ async function parseExif(file) {
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
       const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
     const shootTimeValue = exifDataa.DateTimeOriginal || 'N/A';
     formData.shootTime = formatDateToISO(shootTimeValue);
 
-    exifData.focalLength = exifDataa.FocalLength || 'N/A';
+    exifData.focalLength = exifDataa.FocalLength + 'mm' || 'N/A';
     exifData.cameraMake = exifDataa.Make || 'N/A';
     exifData.cameraModel = exifDataa.Model || 'N/A';
     exifData.exposureTime = formatShutterSpeed(exifDataa.ExposureTime) || 'N/A';
     exifData.apertureValue = exifDataa.FNumber || 'N/A'; exifData.apertureValue = exifDataa.FNumber || 'N/A';
     exifData.isoSpeed = exifDataa.ISO || 'N/A';
+    exifData.OffsetTime = exifDataa.OffsetTime || 'N/A';
+
+    function convertTimeZone(offset) {
+      if (!offset) {
+        return 'UTC+8';
+      }
+      const sign = offset[0];
+      const hours = offset.slice(1, 3);
+      return `UTC${sign}${parseInt(hours)}`;
+    }
+
+    formData.timeZone = convertTimeZone(exifDataa.OffsetTime) || 'UTC+8';
 
   } catch (error) {
     console.error('Error reading EXIF data:', error);
@@ -586,18 +624,21 @@ const drawRGBLineChart = (imageData) => {
           data: redHistogram,
           borderColor: 'rgba(255, 99, 132, 0.5)',
           fill: false, // 不填充
+          borderWidth: 1.2, // 设置红色线条粗细
         },
         {
-          // label: '绿色通道',
+          // label: '绿色通道', 
           data: greenHistogram,
           borderColor: 'rgba(75, 192, 192, 0.5)',
           fill: false, // 不填充
+          borderWidth: 1.2, // 设置绿色线条粗细
         },
         {
           // label: '蓝色通道',
           data: blueHistogram,
           borderColor: 'rgba(54, 162, 235, 0.5)',
           fill: false, // 不填充
+          borderWidth: 1.2, // 设置蓝色线条粗细
         }
       ]
     },

@@ -1,4 +1,6 @@
 import json
+from re import U
+from tkinter import image_names, image_types
 from flask import Flask, request, make_response, jsonify
 from flask_cors import CORS
 import time
@@ -12,6 +14,7 @@ from utils import (
     verification_codes,
 )
 import mimetypes
+import ast
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
@@ -51,7 +54,7 @@ def get_images():
     
     cursor = mysql.cursor()
     base_query = """
-        SELECT i.id, i.file_type, i.aircraft_model, i.shooting_location, 
+        SELECT i.id, i.file_type, i.aircraft_model, i.location, 
                i.image_description, i.upload_time, i.is_featured, i.user_id, 
                u.username
         FROM images i
@@ -110,51 +113,56 @@ def upload_image():
         content_type = mimetypes.guess_type(filename)[0]
         
         # 使用文件名作为文件ID
-        file_id = filename
         # 获取表单数据
-        aircraft_model = request.form.get('aircraft_model', '')
-        location = request.form.get('location', '')
-        description = request.form.get('description', '')
-        user_id = request.form.get('user_id')
-        # 插入MySQL记录
+        username = request.form.get('username')
+        
+        # 初始化 cursor
         cursor = mysql.cursor()
+        print("接收到的表单数据:", request.form)  # 调试日志
+        getting_user_id = cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
+        user_id = cursor.fetchone()[0]
+
+        timezone = request.form.get('timeZone')
+
+        registrationnumber = request.form.get('registrationNumber')
+        aircraft_model = request.form.get('model')
+        location = request.form.get('location')
+        description = request.form.get('description')
+        shooting_time = request.form.get('shootTime')
+        flightNumber = request.form.get('flightNumber')
+        airlineOperator = request.form.get('airlineOperator')
+        image_typess = ast.literal_eval(request.form.getlist('categories')[0])
+        weathers = ast.literal_eval(request.form.getlist('weatherConditions')[0])
+
+        # Ensure image_typess is a list and join it into a string
+        image_type_str = ','.join(image_typess) if image_typess else ''
+        weather_str = ','.join(weathers) if weathers else ''
+
+        # Debugging: Print SQL statement and parameters
+        print("SQL Statement: INSERT INTO images ...")
+        print("Parameters:", (user_id, shooting_time, timezone, registrationnumber,
+                              aircraft_model, image_type_str, weather_str, description,
+                              location, datetime.now(), 'jpg', file, flightNumber, airlineOperator))
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        # 读取文件内容为二进制数据
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rb') as f:
+            file_data = f.read()
+
+        # Insert into MySQL record
         cursor.execute("""
-            INSERT INTO images (user_id, file_id, aircraft_model, location, 
-                              description, upload_time, status)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (user_id, str(file_id), aircraft_model, location, 
-              description, datetime.now(), 0))
+            INSERT INTO images (user_id, shooting_time, timezone, registration_number, 
+                                aircraft_model, image_type, weather, image_description, 
+                                location, upload_time, file_type, image_data, flight_number, airline_operator)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (user_id, shooting_time, timezone, registrationnumber,
+            aircraft_model, image_type_str, weather_str, description,
+            location, datetime.now(), 'jpg', file_data, flightNumber, airlineOperator))
         mysql.commit()
         return jsonify({'status': 'success', 'message': '图片上传成功'})
     return jsonify({'status': 'failed', 'message': '不支持的文件类型'})
 
-@app.route('/api/batch-upload', methods=['POST'])
-def batch_upload_images():
-    files = request.files.getlist('files')
-    if not files:
-        return jsonify({'status': 'failed', 'message': '没有文件被上传'})
 
-    user_id = request.form.get('user_id')
-    images_data = []
-    for file in files:
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_id = filename
-            aircraft_model = request.form.get('aircraft_model', '')
-            location = request.form.get('location', '')
-            description = request.form.get('description', '')
-            images_data.append((user_id, str(file_id), aircraft_model, location, description, datetime.now(), 0))
-
-    if images_data:
-        cursor = mysql.cursor()
-        cursor.executemany("""
-            INSERT INTO images (user_id, file_id, aircraft_model, location, 
-                              description, upload_time, status)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, images_data)
-        mysql.commit()
-        return jsonify({'status': 'success', 'message': '批量图片上传成功'})
-    return jsonify({'status': 'failed', 'message': '不支持的文件类型'})
 
 @app.route('/api/image/<file_id>', methods=['GET'])
 def get_image(file_id):
@@ -216,7 +224,6 @@ def send_verification_code():
 def login():
     try:
         data = request.json
-        print("接收到的登录数据:", data)  # 调试日志
 
         if not data:
             return {"status": "failed", "message": "未接收到登录数据"}, 400
@@ -227,7 +234,6 @@ def login():
 
         if 'password' in data:
             if not data.get('username'):
-                print("Password login attempt missing username. Received data:", data) # 添加调试日志
                 return {"status": "failed", "message": "用户名不能为空"}, 400
 
             username = data['username']
@@ -336,11 +342,6 @@ def upload_avatar():
         mysql.commit()
         return jsonify({'status': 'success', 'message': '头像上传成功', 'avatar_url': avatar_url})
     return jsonify({'status': 'failed', 'message': '不支持的文件类型'})
-
-@app.route('/uploads')
-def uploaded_image():
-    pass
-
 
 
 @app.route('/api/featured-images', methods=['GET'])
