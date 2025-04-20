@@ -13,7 +13,7 @@
           <div v-if="isLoggedIn" class="user-info">
             <span class="user-name">{{ userName }}</span>
             <div class="dropdown-menu">
-              <router-link to="/upload" class="dropdown-item">上传图片</router-link>
+              <router-link to="/upload" class="dropdown-item">上传照片</router-link>
               <router-link to="/my-profile" class="dropdown-item">个人资料</router-link>
               <button @click="handleLogout" class="dropdown-item logout-button">退出登录</button>
             </div>
@@ -27,51 +27,113 @@
     </nav>
     <!-- 主要内容区 -->
     <main class="main-content hgs-container">
-      <div class="notice-container glass-card" style="width: 50%; margin-right: 1%;">
-        <h1>项目上传须知</h1>
-        <p>为了打造一个优质的原创平台，在上传图片时，您需要仔细阅读并遵守以下要求：</p>
+      <div class="notice-container glass-card"
+        style="width: 50%; margin-right: 0%;margin-top: 70px;margin-bottom: -1px;">
+        <h1>上传须知</h1>
+        <p>为了打造一个优质的原创平台，在上传照片时，您需要仔细阅读并遵守以下要求：</p>
         <ul style="font-family: hermit;font-size: 16px;line-height: 50px">
           <li>
-            <strong>格式要求</strong>：仅接受 JPG/JPEG 格式图片，其他格式无法识别，请提前完成格式转环换。
+            <strong>格式要求</strong>：仅接受 JPG/JPEG 格式照片，请提前完成格式转环换。
           </li>
           <li>
-            <strong>大小限制</strong>：单张图片文件大小不得超过 300MB，过大的文件会上传失败，请提前压缩处理。
+            <strong>大小限制</strong>：单张照片文件大小不得超过 30MB，请提前压缩处理。
           </li>
           <li>
-            <strong>内容规范</strong>：请勿上传带有明显人脸的照片，以及包含网络梗图的内容。
+            <strong>内容规范</strong>
+            <ul>
+              <li>请勿上传带有明显人脸的照片，以及包含网络梗图的内容。</li>
+              <li>您上传的照片须确保不侵犯任何个人、组织、企业等主体的合法权益。</li>
+            </ul>
+          </li>
+
+          <li>
+            <strong>版权声明</strong>：所有上传照片必须为上传者本人拍摄，如上传者侵权与平台无关。
           </li>
           <li>
-            <strong>权益保护</strong>：您上传的图片须确保不侵犯任何个人、组织、企业等主体的合法权益，包括但不限于肖像权、著作权、商标权等。
+            <strong>信息完整性</strong>：任何信息缺失时，都标注 “N/A”。
           </li>
           <li>
-            <strong>原创声明</strong>：所有上传图片必须为本人原创拍摄，请勿上传非本人拍摄的图片，禁止任何形式的抄袭。
+            <strong>内容合规</strong>：上传需严格遵守国家法律法规，禁止政治敏感、虚假等违规信息。
+          </li>
+        </ul>
+        <h1>填写规范</h1>
+        <ul style="font-family: hermit;font-size: 16px;line-height: 50px">
+          <li>
+            <strong>航空器信息</strong>
+            <ul>
+              <li><strong>注册号、机型</strong>
+                <ul>
+                  <li>空客机型至少填出Airbus <u>A321</u></li>
+                  <li>波音需填出Boeing 777-300ER</li>
+                </ul>
+              </li>
+              <li><strong>航空公司</strong>：除内地航司外，请填写英文全称。 </li>
+            </ul>
           </li>
           <li>
-            <strong>信息完整性</strong>：若图片涉及特定对象或场景，相关机型、编号、主体名称等信息缺失时，统一标注 “N/A”。
-          </li>
-          <li>
-            <strong>内容合规</strong>：上传内容需严格遵守国家法律法规及平台规定，禁止包含政治敏感、虚假、侮辱、诽谤等违规信息。
+            <strong>照片信息</strong>
+            <ul>
+              <li><strong>拍摄时间：</strong>建议以拍摄当地时间为准，非北京时间请在照片描述注明。</li>
+              <li><strong>拍摄地点：</strong>中国大陆及港澳台机场填写中文全称，其他填写英文全称。</li>
+              <li><strong>天气：</strong>建议以当时的ATIS信息为准，若未知则根据照片实际情况选择。</li>
+            </ul>
           </li>
         </ul>
       </div>
-      <div class=" upload-container glass-card">
-        <h2>上传图片</h2>
+
+      <div class=" upload-container glass-card" style="margin-top: 70px">
+        <h2>上传照片</h2>
         <form @submit.prevent="handleSubmit" class="upload-form">
-          <!-- 图片上传区域 -->
-          <div class="image-upload-area" @click="triggerFileInput" @drop.prevent="handleDrop" @dragover.prevent>
-            <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" style="display: none">
-            <div v-if="!previewImage" class="upload-placeholder">
-              <i class="fas fa-cloud-upload-alt"></i>
-              <p>点击或拖拽图片到此处上传</p>
-              <p class="upload-hint">支持 JPEG、JPG 格式，最大 300MB</p>
+          <!-- 照片上传区域 -->
+          <div>
+            <div>
+              <div class="image-upload-area aa"
+                style="max-width: 98%; width: 355px; height:200px; display: flex; align-items: center; justify-content: center;margin: auto;margin-left: 1.1%;padding: 8px;"
+                @click="triggerFileInput" @drop.prevent="handleDrop" @dragover.prevent>
+                <input type="file" ref="fileInput" @change="handleFileChange" accept="image/jpeg,image/jpg"
+                  style="display: none; place-items: center; max-width: 10%; max-height: 10%;">
+                <div v-if="!previewImage" class="upload-placeholder r1">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p>点击或拖拽照片到此处上传</p>
+                  <p class="upload-hint">支持 JPEG、JPG 格式，最大 30MB</p>
+                </div>
+                <img v-else :src="previewImage" alt="预览照片" class="preview-image"
+                  style="height: 200px;max-width: 80%; width: 80%; min-height: 150px; object-fit: contain;  border-radius: 8px; margin: 0px;">
+              </div>
             </div>
-            <img v-else :src="previewImage" alt="预览图片" class="preview-image">
+          </div>
+          <!-- 图片EXIF信息 -->
+
+          <div
+            style="display: flex; justify-content: center; align-items: center; width: 468.9px; height: 170px; margin-left: 0.8%;"
+            class="upload-container glass-card">
+            <div v-if="selectedFile">
+              <canvas id="histogramChart" width="350" height="200"
+                style="display: block; box-sizing: border-box; max-width: 100%; max-height: 100%;"></canvas>
+            </div>
+            <div style="width: 222px;font-family: Maple Mono NF CN Light;line-height: 150%;">
+              <ul style="list-style-type:''">
+                <li v-if="!selectedFile"
+                  style="list-style-type:'';padding-left: 0; margin-left: 0; max-width: 200px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical;">
+                  当您上传图片后，此处将显示图片的RGB直方图和EXIF信息
+                </li>
+                <li v-else>
+                  <ul style="list-style-type:'·';padding-left: 0;margin-left: 0;">
+                    <li><strong>{{ exifData.airtistacopryrgt || 'N/A' }}</strong></li>
+                    <li><strong>{{ exifData.cameraMake || 'N/A' }}&nbsp</strong> {{ exifData.cameraModel || 'N/A' }}
+                    </li>
+                    <li><strong>SS&nbsp&nbsp</strong>{{ exifData.exposureTime || 'N/A' }}</li>
+                    <li><strong>F &nbsp</strong>{{ exifData.apertureValue || 'N/A' }}</li>
+                    <li><strong>ISO </strong>{{ exifData.isoSpeed || 'N/A' }}</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <!-- 图片信息表单 -->
-
-          <div class="info-section upload-container glass-card">
-            <h3>飞机信息</h3>
+          <!-- 照片信息表单 -->
+          <div class="upload-container glass-card" style="width: 300px">
+            <h3>航空器信息</h3>
             <div class="form-group">
               <label>航班号</label>
               <input type="text" v-model="formData.flightNumber" placeholder="e.g. HU7051 / MU501" required>
@@ -81,26 +143,59 @@
               <input type="text" v-model="formData.registrationNumber" placeholder="e.g. B-2447 / JA383A" required>
             </div>
             <div class="form-group">
-              <label>飞机型号</label>
+              <label>机型</label>
               <input type="text" v-model="formData.model" placeholder="e.g. Airbus A320-251N / Boeing 787-8" required>
             </div>
-            <div class="form-group">
-              <label>航司</label>
-              <v-select v-model="formData.airlineOperator" :options="airlineOptions" placeholder="请选择或输入航司" searchable
-                :reduce="option => option || null" />
+            <div class="form-group" style="position: relative; z-index: 100;">
+              <label>航空公司</label>
+              <input type="text" v-model="formData.airlineOperator" placeholder="e.g. 中国南方航空 / All Nippon Airways"
+                required>
             </div>
           </div>
 
-          <div class="upload-container glass-card " style="width: 86.3%;">
+          <div class="upload-container glass-card " style="width: 472.1px; margin-left: 0.6%;">
             <div class="photo-section">
               <h3>照片信息</h3>
               <div class="form-group">
                 <label>拍摄时间</label>
-                <input type="datetime-local" style="font-family: hermit;" v-model="formData.shootTime" required>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <select v-model="formData.timeZone" 
+                    style="width: 45%; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 12px; background: rgba(255, 255, 255, 0.3); color: #2c3e50; font-size: 0.95rem; transition: all 0.3s ease;">
+                    <option value="UTC+12">UTC+12 (奥克兰)</option>
+                    <option value="UTC+11">UTC+11 (霍尼亚拉)</option>
+                    <option value="UTC+10">UTC+10 (悉尼)</option>
+                    <option value="UTC+9">UTC+9 (东京)</option>
+                    <option value="UTC+8">UTC+8 (北京)</option>
+                    <option value="UTC+7">UTC+7 (曼谷)</option>
+                    <option value="UTC+6">UTC+6 (达卡)</option>
+                    <option value="UTC+5">UTC+5 (伊斯兰堡)</option>
+                    <option value="UTC+4">UTC+4 (阿布扎比)</option>
+                    <option value="UTC+3">UTC+3 (莫斯科)</option>
+                    <option value="UTC+2">UTC+2 (开罗)</option>
+                    <option value="UTC+1">UTC+1 (巴黎)</option>
+                    <option value="UTC+0">UTC+0 (伦敦)</option>
+                    <option value="UTC-1">UTC-1 (佛得角群岛)</option>
+                    <option value="UTC-2">UTC-2 (南乔治亚岛和南桑威奇群岛)</option>
+                    <option value="UTC-3">UTC-3 (里约热内卢)</option>
+                    <option value="UTC-4">UTC-4 (圣地亚哥)</option>
+                    <option value="UTC-5">UTC-5 (纽约)</option>
+                    <option value="UTC-6">UTC-6 (芝加哥)</option>
+                    <option value="UTC-7">UTC-7 (丹佛)</option>
+                    <option value="UTC-8">UTC-8 (洛杉矶)</option>
+                    <option value="UTC-9">UTC-9 (安克雷奇)</option>
+                    <option value="UTC-10">UTC-10 (檀香山)</option>
+                    <option value="UTC-11">UTC-11 (中途岛)</option>
+                    <option value="UTC-12">UTC-12 (贝克岛)</option>
+                  </select>
+                  <input type="datetime-local" style="font-family: hermit; width: 60%;" v-model="formData.shootTime"
+                    required>
+
+                </div>
               </div>
               <div class="form-group">
                 <label>拍摄地点</label>
-                <input type="text" v-model="formData.location" placeholder="请输入拍摄地点" required>
+                <input type="text" v-model="formData.location"
+                  placeholder="e.g. 厦门高崎国际机场 / O'Hare International Airport" required>
               </div>
               <div class="form-group">
                 <label>天气</label>
@@ -126,10 +221,9 @@
           </div>
 
 
-          <div class="upload-container glass-card" style="grid-column: span 2;width: 92.5%; margin-left: -0.6%;">
-            <h3>上传附加</h3>
+          <div class="upload-container glass-card" style="grid-column: span 2;width: 91.1%">
             <div class="form-group">
-              <label>图片描述</label>
+              <label style="margin-top:1.3rem ;">照片描述</label>
               <textarea v-model="formData.description" rows="4" placeholder="可以填写表单未提及但值得说明的内容"
                 style="resize: none;width: 97%;height: 100%;font-size: 15px;margin-left: -1%;font-family:hermit "></textarea>
             </div>
@@ -151,6 +245,7 @@
 
 <script setup>
 import { ref, computed, onMounted, reactive } from 'vue';
+
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import vSelect from 'vue-select';
@@ -186,15 +281,6 @@ const previewImage = ref('');
 const uploadProgress = ref(0);
 const uploading = ref(false);
 
-
-
-const airlineOptions = ref([
-  { label: '中国南方航空', value: '中国南方航空' },
-  { label: '厦门航空', value: '厦门航空' },
-  { label: '中国国际航空', value: '中国国际航空' },
-  { label: '海南航空', value: '海南航空' }
-]);
-
 const formData = reactive({
   model: '',
   location: '',
@@ -210,6 +296,8 @@ const formData = reactive({
   locationInfo: ''
 });
 
+
+
 const suggestedCategories = ref(['军用', '民用', '客机', '货机', '战斗机', '直升机']);
 
 const triggerFileInput = () => {
@@ -220,12 +308,29 @@ const triggerFileInput = () => {
 
 // 添加一个变量来存储选中的文件
 const selectedFile = ref(null);
-
 const handleFileChange = (event) => {
   const file = event.target.files[0];
   if (file) {
     selectedFile.value = file;
     validateAndPreviewFile(file);
+    parseExif(file); // 调用解析EXIF信息的函数
+
+    // 读取图像数据并绘制RGB折线图
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.getElementById('histogramChart');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, img.width, img.height);
+        drawRGBLineChart(imageData); // 确保每次都调用此函数
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   }
 };
 
@@ -234,23 +339,24 @@ const handleDrop = (event) => {
   if (file) {
     selectedFile.value = file;
     validateAndPreviewFile(file);
+    parseExif(file); // 调用解析EXIF信息的函数
   }
 };
 
 const validateAndPreviewFile = (file) => {
   // 验证文件类型
   if (!['image/jpeg'].includes(file.type)) {
-    alert('请上传 JPEG 格式的图片');
+    alert('请上传 JPEG 格式的照片');
     return;
   }
 
-  // 验证文件大小（300MB）
-  if (file.size > 300 * 1024 * 1024) {
-    alert('图片大小不能超过 300MB');
+  // 验证文件大小（30MB）
+  if (file.size > 30 * 1024 * 1024) {
+    alert('照片大小不能超过 30MB');
     return;
   }
 
-  // 预览图片
+  // 预览照片
   const reader = new FileReader();
   reader.onload = (e) => {
     previewImage.value = e.target.result;
@@ -269,17 +375,17 @@ const toggleCategory = (category) => {
 
 const handleSubmit = async () => {
   if (!selectedFile.value) {
-    alert('请选择要上传的图片');
+    alert('请选择要上传的照片');
     return;
   }
 
   if (!formData.model || !formData.location || !formData.shootTime) {
-    alert('请填写完整的图片信息');
+    alert('请填写完整的照片信息');
     return;
   }
 
   if (!isLoggedIn.value) {
-    alert('请先登录再上传图片');
+    alert('请先登录再上传照片');
     router.push('/account/login');
     return;
   }
@@ -376,33 +482,163 @@ const toggleWeatherCondition = (condition) => {
   }
 };
 
+import { useScrollLock } from 'vue-scroll-lock';
+
+onMounted(() => {
+  document.body.style.overflow = 'hidden';
+});
+const exifData = reactive({
+  cameraModel: '',
+  exposureTime: '',
+  apertureValue: '',
+  isoSpeed: '',
+
+});
+
+import exifr from 'exifr';
+
+async function parseExif(file) {
+  try {
+    function formatShutterSpeed(exposureTime) {
+      if (exposureTime < 1) {
+        const denominator = Math.round(1 / exposureTime);
+        return `1/${denominator}`;
+      } else {
+        return `${Math.round(exposureTime)}''`;
+      }
+    }
+    const exifDataa = await exifr.parse(file);
+    console.log('EXIF Data:', exifDataa); // 输出EXIF数据
+    if (exifDataa.Artist == exifDataa.Copyright) {
+      exifData.airtistacopryrgt = exifDataa.Artist || 'N/A';
+    } else {
+      exifData.airtistacopryrgt = exifDataa.Artist + " / " + exifDataa.Copyright || 'N/A';
+    };
+    exifData.cameraMake = exifDataa.Make || 'N/A';
+    exifData.cameraModel = exifDataa.Model || 'N/A';
+    exifData.exposureTime = formatShutterSpeed(exifDataa.ExposureTime) || 'N/A';
+    exifData.apertureValue = exifDataa.FNumber || 'N/A'; exifData.apertureValue = exifDataa.FNumber || 'N/A';
+    exifData.isoSpeed = exifDataa.ISO || 'N/A';
+
+  } catch (error) {
+    console.error('Error reading EXIF data:', error);
+    alert('无法读取EXIF数据，请检查文件格式。');
+  }
+}
+
+import Chart from 'chart.js/auto'; // 引入chart.js
+
+// ... existing code ...
+
+
+const calculateRGBHistogram = (imageData) => {
+  const redHistogram = new Array(256).fill(0);
+  const greenHistogram = new Array(256).fill(0);
+  const blueHistogram = new Array(256).fill(0);
+
+  for (let i = 0; i < imageData.data.length; i += 4) {
+    redHistogram[imageData.data[i]]++;
+    greenHistogram[imageData.data[i + 1]]++;
+    blueHistogram[imageData.data[i + 2]]++;
+  }
+
+  return { redHistogram, greenHistogram, blueHistogram };
+};
+let chartInstance = null; // 用于存储图表实例
+
+const drawRGBLineChart = (imageData) => {
+  const ctx = document.getElementById('histogramChart').getContext('2d');
+
+  // 如果已有图表实例，先销毁它
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  const { redHistogram, greenHistogram, blueHistogram } = calculateRGBHistogram(imageData);
+
+  chartInstance = new Chart(ctx, {
+    type: 'line', // 修改为折线图
+    data: {
+      labels: Array.from({ length: 256 }, (_, i) => i),
+      datasets: [
+        {
+          // label: '红色通道',
+          data: redHistogram,
+          borderColor: 'rgba(255, 99, 132, 0.5)',
+          fill: false, // 不填充
+        },
+        {
+          // label: '绿色通道',
+          data: greenHistogram,
+          borderColor: 'rgba(75, 192, 192, 0.5)',
+          fill: false, // 不填充
+        },
+        {
+          // label: '蓝色通道',
+          data: blueHistogram,
+          borderColor: 'rgba(54, 162, 235, 0.5)',
+          fill: false, // 不填充
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        legend: {
+          display: false // 不显示图例
+        },
+        title: {
+          display: true,
+          text: 'RGB直方图',
+          font: {
+            size: 15,
+            weight: 'hermit'
+          }
+        }
+      },
+      scales: {
+        x: { display: false },
+        y: { display: false },
+      },
+      animation: {
+        duration: 0 // 禁用动画
+      }
+    }
+  });
+};
+
 </script>
 
 
 <style scoped>
+.body {
+  overflow: hidden;
+}
+
 .home-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding-top: 80px;
+  padding-top: 10px;
   padding-left: 1rem;
   /* 减少左边距 */
-  padding-right: 1rem;
   /* 减少右边距 */
+  overflow: hidden;
+  height: 80vh;
+  margin: 0;
 }
 
-.my-v-select {
-  z-index: 9990 !important;
-  /* 设置一个较大的值，确保在其他元素之上 */
-}
 
-.my-v-select.v-select__dropdown {
-  z-index: 9991 !important;
-  /* 确保下拉菜单也在顶层 */
-}
+
 
 .hgs-container {
-  display: grid;
-  grid-template-columns: 1fr;
+  /* 修改为两列布局 */
+  gap: 1rem;
+  /* 增加间距 */
+  height: auto;
+  /* 自动高度 */
+}
+
+.home-container .hgs-container {
+  height: auto
 }
 
 .form-group {
@@ -410,10 +646,23 @@ const toggleWeatherCondition = (condition) => {
   /* 确保子元素的 z - index 能正常生效 */
   z-index: 1;
   /* 若值过大可能会导致子元素被限制在一定层级内 */
-  margin-bottom: 1rem;
+  margin-bottom: 10rem;
 
 }
 
+
+.upload-container.glass-card {
+
+  padding-top: 1.1rem;
+  /* 保持顶部和底部边距不变 */
+  padding-bottom: 2rem;
+}
+
+/* 专门针对航空器信息部分的form-group间距 */
+.upload-container.glass-card .form-group {
+  margin-bottom: 0.6rem;
+  /* 调整这个值来改变间距大小 */
+}
 
 label {
   display: block;
@@ -423,6 +672,7 @@ label {
 .v-select {
   width: 100%;
 }
+
 /* 导航栏样式 */
 .nav-bar {
   position: fixed;
@@ -519,11 +769,15 @@ label {
   /* 设置宽度为100%以确保两个框等宽 */
 }
 
+
 .upload-form {
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
+  /* 修改为两列布局 */
   gap: 1rem;
+  /* 增加间距 */
 }
+
+
 
 .image-upload-area,
 .submit-button {
@@ -593,6 +847,7 @@ label {
 }
 
 .upload-placeholder {
+  display: center;
   color: #666;
 }
 
@@ -600,6 +855,7 @@ label {
   font-size: 3rem;
   margin-bottom: 1rem;
   color: #262d91;
+  display: center;
 }
 
 .upload-hint {
@@ -610,6 +866,7 @@ label {
 
 .preview-image {
   max-width: 100%;
+  min-width: 100%;
   max-height: 300px;
   border-radius: 8px;
 }
@@ -753,7 +1010,7 @@ label {
   backdrop-filter: blur(12px);
   border-radius: 24px;
   padding: 2.5rem;
-  margin: 0 auto;
+  margin: 10 auto;
   z-index: 11;
 }
 
@@ -794,9 +1051,6 @@ label {
   border-radius: 12px;
   min-width: 150px;
   z-index: 1000;
-
-
-
   background: rgba(38, 45, 145, 0.8);
   color: white;
   font-weight: 500;
@@ -941,6 +1195,7 @@ label {
 
   .upload-container {
     padding: 1rem;
+    margin: 0;
   }
 
   .form-group input,

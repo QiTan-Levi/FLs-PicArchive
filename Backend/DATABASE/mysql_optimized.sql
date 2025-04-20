@@ -18,6 +18,8 @@ CREATE TABLE images (
     user_id INT NOT NULL,
     -- 拍摄的具体时间
     shooting_time DATETIME,
+    -- 拍摄时间所对应的时区
+    timezone VARCHAR(50),
     -- 飞机的注册号
     registration_number VARCHAR(50),
     -- 当时执行航班号
@@ -46,7 +48,7 @@ CREATE TABLE images (
     reviewer_id INT,
     -- 审核时间
     review_time DATETIME,
-    -- 图片数据，以 BLOB 类型存储，最大可存储 300MB
+    -- 图片数据，以 BLOB 类型存储，最大可存储 30MB
     image_data LONGBLOB NOT NULL,
     -- 用于区分图片是待审核还是已审核
     is_pending TINYINT DEFAULT 1 COMMENT '1-待审核 0-已审核',

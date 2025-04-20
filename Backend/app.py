@@ -338,8 +338,8 @@ def upload_avatar():
     return jsonify({'status': 'failed', 'message': '不支持的文件类型'})
 
 @app.route('/uploads')
-def uploaded_file():
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+def uploaded_image():
+    pass
 
 
 
