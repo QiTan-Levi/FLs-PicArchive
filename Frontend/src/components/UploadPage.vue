@@ -1,4 +1,4 @@
-<template>
+<template >
   <div class="home-container bg-gradient-to-r from-blue-500 to-purple-500">
     <!-- 顶部导航栏 -->
     <nav class="nav-bar">
@@ -6,7 +6,7 @@
         <div class="nav-left">
           <router-link to="/" class="logo">
             <img src="@/assets/logo.svg" alt="Logo" class="logo-image">
-            <span class="logo-text">ByInfo - Fs Picture Archieve</span>
+            <span class="logo-text" style="font-family: Maple Mono NF CN;">ByInfo - Fs Picture Archieve</span>
           </router-link>
         </div>
         <div class="nav-right">
@@ -28,10 +28,10 @@
     <!-- 主要内容区 -->
     <main class="main-content hgs-container">
       <div class="notice-container glass-card"
-        style="width: 50%; margin-right: 0%;margin-top: 70px;margin-bottom: -1px;">
+        style="width: 51%; margin-right: 0%;margin-top: 70px;margin-bottom: -1px;">
         <h1>上传须知</h1>
         <p>为了打造一个优质的原创平台，在上传照片时，您需要仔细阅读并遵守以下要求：</p>
-        <ul style="font-family: hermit;font-size: 16px;line-height: 50px">
+        <ul style="font-family: 汉仪中园简;font-size: 16px;line-height: 50px">
           <li>
             <strong>格式要求</strong>：仅接受 JPG/JPEG 格式照片，请提前完成格式转环换。
           </li>
@@ -73,7 +73,7 @@
           <li>
             <strong>照片信息</strong>
             <ul>
-              <li><strong>拍摄时间：</strong>建议以拍摄当地时间为准，非北京时间请在照片描述注明。</li>
+              <li><strong>拍摄时间：</strong>任何时候都允许使用北京时间，国外建议使用拍摄当地时间。</li>
               <li><strong>拍摄地点：</strong>中国大陆及港澳台机场填写中文全称，其他填写英文全称。</li>
               <li><strong>天气：</strong>建议以当时的ATIS信息为准，若未知则根据照片实际情况选择。</li>
             </ul>
@@ -158,14 +158,14 @@
               <h3>照片信息</h3>
               <div class="form-group">
                 <label>拍摄时间</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                  <select v-model="formData.timeZone" 
-                    style="width: 45%; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 12px; background: rgba(255, 255, 255, 0.3); color: #2c3e50; font-size: 0.95rem; transition: all 0.3s ease;">
+                <div style="display: flex; gap: 10px; align-items: center;font-family: hermit;">
+                  <select v-model="formData.timeZone"
+                    style="width: 45%; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 12px; background: rgba(255, 255, 255, 0.3); color: #2c3e50; font-size: 0.95rem; transition: all 0.3s ease;font-family: hermitMaple Mono NF CN Light;">
                     <option value="UTC+12">UTC+12 (奥克兰)</option>
                     <option value="UTC+11">UTC+11 (霍尼亚拉)</option>
                     <option value="UTC+10">UTC+10 (悉尼)</option>
                     <option value="UTC+9">UTC+9 (东京)</option>
-                    <option value="UTC+8">UTC+8 (北京)</option>
+                    <option value="UTC+8" selected>UTC+8 (北京)</option>
                     <option value="UTC+7">UTC+7 (曼谷)</option>
                     <option value="UTC+6">UTC+6 (达卡)</option>
                     <option value="UTC+5">UTC+5 (伊斯兰堡)</option>
@@ -175,7 +175,7 @@
                     <option value="UTC+1">UTC+1 (巴黎)</option>
                     <option value="UTC+0">UTC+0 (伦敦)</option>
                     <option value="UTC-1">UTC-1 (佛得角群岛)</option>
-                    <option value="UTC-2">UTC-2 (南乔治亚岛和南桑威奇群岛)</option>
+                    <option value="UTC-2">UTC-2 (南乔治亚岛)</option>
                     <option value="UTC-3">UTC-3 (里约热内卢)</option>
                     <option value="UTC-4">UTC-4 (圣地亚哥)</option>
                     <option value="UTC-5">UTC-5 (纽约)</option>
@@ -187,7 +187,7 @@
                     <option value="UTC-11">UTC-11 (中途岛)</option>
                     <option value="UTC-12">UTC-12 (贝克岛)</option>
                   </select>
-                  <input type="datetime-local" style="font-family: hermit; width: 60%;" v-model="formData.shootTime"
+                  <input type="datetime-local" style="font-family: hermitMaple Mono NF CN Light; width: 60%;" v-model="formData.shootTime"
                     required>
 
                 </div>
@@ -287,13 +287,13 @@ const formData = reactive({
   shootTime: '',
   description: '',
   categories: [],
-  // 新增字段
   registrationNumber: '',
   flightNumber: '',
   airlineOperator: '',
   imageTypes: [],
   weatherConditions: [],
-  locationInfo: ''
+  locationInfo: '',
+  timeZone: 'UTC+8' // 设置默认时区为北京时间
 });
 
 
@@ -514,6 +514,26 @@ async function parseExif(file) {
     } else {
       exifData.airtistacopryrgt = exifDataa.Artist + " / " + exifDataa.Copyright || 'N/A';
     };
+    const datelsy = exifDataa.DateTimeOriginal || 'N/A';
+    function formatDateToISO(date) {
+      if (typeof date === 'string') {
+        date = new Date(date);
+      }
+      if (isNaN(date.getTime())) {
+        return 'N/A';
+      }
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    }
+    const shootTimeValue = exifDataa.DateTimeOriginal || 'N/A';
+    formData.shootTime = formatDateToISO(shootTimeValue);
+
+    exifData.focalLength = exifDataa.FocalLength || 'N/A';
     exifData.cameraMake = exifDataa.Make || 'N/A';
     exifData.cameraModel = exifDataa.Model || 'N/A';
     exifData.exposureTime = formatShutterSpeed(exifDataa.ExposureTime) || 'N/A';
@@ -1214,5 +1234,24 @@ label {
 .user-name {
   font-weight: 500;
   color: #262d91;
+}
+
+
+
+select {
+
+  background: transparent;
+  /* 确保背景透明 */
+}
+
+
+select option {
+  scrollbar-width: none;
+  /* Firefox: 隐藏滚动条 */
+}
+
+select::-webkit-scrollbar {
+  display: none;
+  /* Webkit: 隐藏滚动条 */
 }
 </style>

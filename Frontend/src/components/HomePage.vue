@@ -6,8 +6,7 @@
       <div class="nav-left">
         <router-link to="/" class="logo">
           <img src="@/assets/logo.svg" alt="Logo" class="logo-image">
-          <span class="logo-text">ByInfo - Picture Archieve</span>
-        </router-link>
+          <span class="logo-text" style="font-family: Maple Mono NF CN;">ByInfo - Fs Picture Archieve</span>        </router-link>
         <div class="search-box">
           <input type="text" placeholder="搜索图片..." v-model="searchQuery">
           <button @click="search" class="search-button">
