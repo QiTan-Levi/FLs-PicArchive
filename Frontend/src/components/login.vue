@@ -105,7 +105,7 @@ const sendLoginCode = async () => {
   
   try {
     // Assuming the endpoint is /send-login-code based on reference
-    await axios.post('http://localhost:5000/send-login-code', {
+    await axios.post('http://localhost:5000/send-verification-code', {
       email: email.value
     });
     
@@ -155,7 +155,7 @@ const login = async () => {
         }
       : { 
           email: email.value,
-          verification_code: verificationCode.value // Match backend expected field name if different
+          verificationCode: verificationCode.value // 确保字段名称与后端一致
         };
     
     // Direct API call instead of Vuex action
