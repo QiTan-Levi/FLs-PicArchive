@@ -27,8 +27,6 @@ def init_db_connections():
         database=data_databasename
     )
     
-    mongodb = pymongo.MongoClient("mongodb://localhost:27017/")["transportation"]
-    fs = GridFS(mongodb)
 
     return mysql
 
