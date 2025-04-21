@@ -58,10 +58,10 @@ FocusLevi's Picture Archive System 是一个专注于航空图片管理的综合
    ```
 ## 使用说明
 ### 用户注册与登录
-- 访问 /account/register 页面进行注册。
-- 访问 /account/login 页面进行登录。
+- 访问 ```/account/register``` 页面进行注册。
+- 访问 ```/account/login``` 页面进行登录。
 ### 系统管理
-- 管理员登录后，访问 /admin 页面进行系统管理。
+- 管理员登录后，访问 ```/admin``` 页面进行系统管理。
 - 功能待定。
 ## 未来计划
 - **优化**：加载速度

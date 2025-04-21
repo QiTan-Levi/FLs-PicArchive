@@ -3,6 +3,7 @@ import Home from '../components/HomePage.vue'
 import Login from '../components/login.vue'
 import Register from '../components/register.vue'
 import Upload from '../components/UploadPage.vue'
+import Profile from '../components/ProfilePage.vue'
 
 const routes = [
   {
@@ -26,8 +27,14 @@ const routes = [
     component: Upload,
     meta: { requiresAuth: true } // 这个路由需要认证
 
+  },
+  {
+    path: '/my-profile',
+    name: 'Profile',
+    component: Profile,
+    meta: { requiresAuth: true }
   }
-]
+];
 
 const router = createRouter({
   history: createWebHistory(),

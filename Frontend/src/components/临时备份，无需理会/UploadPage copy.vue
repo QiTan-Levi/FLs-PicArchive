@@ -671,60 +671,70 @@ const drawRGBLineChart = (imageData) => {
 
 
 <style scoped>
-/* 基础样式 */
 .body {
   overflow: hidden;
 }
 
-/* 布局容器 */
 .home-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding-top: 10px;
   padding-left: 1rem;
+  /* 减少左边距 */
+  /* 减少右边距 */
   overflow: hidden;
   height: 80vh;
   margin: 0;
 }
 
+
+
+
 .hgs-container {
+  /* 修改为两列布局 */
   gap: 1rem;
+  /* 增加间距 */
   height: auto;
+  /* 自动高度 */
 }
 
 .home-container .hgs-container {
   height: auto
 }
 
-.main-content {
-  max-width: 1750px;
-  padding: 0.2rem;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  height: 100%;
+.form-group {
+  position: relative;
+  /* 确保子元素的 z - index 能正常生效 */
+  z-index: 1;
+  /* 若值过大可能会导致子元素被限制在一定层级内 */
+  margin-bottom: 10rem;
+
+}
+
+
+.upload-container.glass-card {
+
+  padding-top: 1.1rem;
+  /* 保持顶部和底部边距不变 */
+  padding-bottom: 2rem;
+}
+
+/* 专门针对航空器信息部分的form-group间距 */
+.upload-container.glass-card .form-group {
+  margin-bottom: 0.6rem;
+  /* 调整这个值来改变间距大小 */
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.v-select {
   width: 100%;
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(12px);
-  border-radius: 24px;
-  padding: 2.5rem;
-  margin: 10 auto;
-  z-index: 11;
-}
-
-.glass-card h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #2c3e50;
-  font-weight: 500;
-}
-
-
-/* 导航栏相关 */
+/* 导航栏样式 */
 .nav-bar {
   position: fixed;
   top: 0;
@@ -751,11 +761,6 @@ const drawRGBLineChart = (imageData) => {
   gap: 2rem;
 }
 
-.nav-right {
-  display: flex;
-  gap: 1rem;
-}
-
 .logo {
   display: flex;
   align-items: center;
@@ -773,6 +778,11 @@ const drawRGBLineChart = (imageData) => {
   font-weight: bold;
 }
 
+.nav-right {
+  display: flex;
+  gap: 1rem;
+}
+
 .nav-button {
   padding: 0.5rem 1.5rem;
   border-radius: 20px;
@@ -786,21 +796,58 @@ const drawRGBLineChart = (imageData) => {
   color: white;
 }
 
-/* 表单组件 */
-.form-group {
-  position: relative;
-  z-index: 1;
-  margin-bottom: 10rem;
+/* 主要内容区样式 */
+
+.main-content {
+  max-width: 1750px;
+  padding: 0.2rem;
+  margin: 0 auto;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  /*左右布局*/
+  justify-content: center;
+  /*内容居中*/
+  gap: 2rem;
+  height: 100%;
+  width: 100%;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
+
+
+.upload-container {
+  width: 82%;
+  z-index: 10;
+  /* 设置宽度为100%以确保两个框等宽 */
+}
+
+.upload-container h2 {
+  text-align: center;
+  margin-bottom: 2rem;
   color: #262d91;
-  font-weight: 500;
+}
+
+.notice-container {
+  width: 120%;
+  /* 设置宽度为100%以确保两个框等宽 */
+}
+
+
+.upload-form {
+  display: grid;
+  /* 修改为两列布局 */
+  gap: 1rem;
+  /* 增加间距 */
+}
+
+
+
+.image-upload-area,
+.submit-button {
+  grid-column: span 2;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  gap: 0.5rem;
 }
 
 .form-group input,
@@ -821,32 +868,30 @@ const drawRGBLineChart = (imageData) => {
   outline: none;
   border-color: rgba(0, 122, 255, 0.5);
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+  gap: 15rem;
 }
 
-/* 上传区域样式 */
-.upload-container {
-  width: 82%;
-  z-index: 10;
+.submit-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 12px;
+  background: rgba(38, 45, 145, 0.8);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.upload-container.glass-card {
-  padding-top: 1.1rem;
-  padding-bottom: 2rem;
+.submit-button:hover {
+  background: rgba(38, 45, 145, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.upload-container.glass-card .form-group {
-  margin-bottom: 0.6rem;
-}
-
-.upload-container h2 {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: #262d91;
-}
-
-.upload-form {
-  display: grid;
-  gap: 1rem;
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .image-upload-area {
@@ -856,14 +901,12 @@ const drawRGBLineChart = (imageData) => {
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  grid-column: span 2;
 }
 
 .image-upload-area:hover {
   border-color: rgba(38, 45, 145, 0.8);
 }
 
-/* 图片预览和上传提示 */
 .upload-placeholder {
   display: center;
   color: #666;
@@ -889,12 +932,38 @@ const drawRGBLineChart = (imageData) => {
   border-radius: 8px;
 }
 
-/* 分类标签 */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #262d91;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(38, 45, 145, 0.3);
+}
+
 .category-suggestions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+
 
 .category-tag {
   padding: 0.5rem 1rem;
@@ -911,7 +980,6 @@ const drawRGBLineChart = (imageData) => {
   color: white;
 }
 
-/* 上传进度 */
 .upload-progress {
   margin-top: 1rem;
 }
@@ -929,22 +997,18 @@ const drawRGBLineChart = (imageData) => {
   transition: width 0.3s ease;
 }
 
-/* 按钮样式 */
 .submit-button {
-  width: 100%;
-  padding: 0.75rem;
-  border: none;
+  padding: 1rem;
   border-radius: 12px;
+  border: none;
   background: rgba(38, 45, 145, 0.8);
   color: white;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  grid-column: span 2;
 }
 
 .submit-button:hover {
-  background: rgba(38, 45, 145, 0.9);
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -954,18 +1018,146 @@ const drawRGBLineChart = (imageData) => {
   cursor: not-allowed;
 }
 
-/* 用户信息和下拉菜单 */
+.footer {
+  padding: 2rem;
+  margin-top: 4rem;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-section {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.social-link {
+  color: #262d91;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.social-link:hover {
+  opacity: 0.8;
+}
+
+.auth-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 520px;
+  padding: 2rem;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 2.5rem;
+  margin: 10 auto;
+  z-index: 11;
+}
+
+.glass-card h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-form input {
+  width: 93.5%;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  color: #2c3e50;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: rgba(0, 122, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.primary-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 12px;
+  min-width: 150px;
+  z-index: 1000;
+  background: rgba(38, 45, 145, 0.8);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.primary-button:hover {
+  background: rgba(38, 45, 145, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 1.5rem;
+    border-radius: 20px;
+  }
+
+  .glass-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .glass-card {
+    padding: 1.25rem;
+    border-radius: 16px;
+  }
+
+  .auth-form input,
+  .primary-button {
+    padding: 0.65rem;
+  }
+}
+
+
 .user-info {
   display: flex;
   align-items: center;
   gap: 1rem;
   position: relative;
   padding: 10px;
-}
-
-.user-name {
-  font-weight: 500;
-  color: #262d91;
+  /* 增加padding以扩大悬停区域 */
 }
 
 .dropdown-menu {
@@ -1008,7 +1200,30 @@ const drawRGBLineChart = (imageData) => {
   background: rgba(38, 45, 145, 0.1);
 }
 
-/* 响应式布局 */
+.logout-button {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #262d91;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+  text-align: left;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+.dropdown-item button {
+  width: auto;
+}
+
+.dropdown-item button:hover {
+  background: rgba(38, 45, 145, 0.1);
+  width: auto;
+}
+
 @media (max-width: 768px) {
   .nav-content {
     flex-direction: column;
@@ -1018,6 +1233,12 @@ const drawRGBLineChart = (imageData) => {
 
   .nav-bar {
     height: auto;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
   }
 }
 
@@ -1044,20 +1265,34 @@ const drawRGBLineChart = (imageData) => {
   }
 }
 
-/* 其他工具类 */
-.v-select {
-  width: 100%;
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
 }
 
-select {
-  background: transparent;
+.user-name {
+  font-weight: 500;
+  color: #262d91;
 }
+
+
+
+select {
+
+  background: transparent;
+  /* 确保背景透明 */
+}
+
 
 select option {
   scrollbar-width: none;
+  /* Firefox: 隐藏滚动条 */
 }
 
 select::-webkit-scrollbar {
   display: none;
+  /* Webkit: 隐藏滚动条 */
 }
 </style>
