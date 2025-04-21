@@ -91,6 +91,7 @@ FocusLevi's Picture Archive System 是一个专注于航空图片管理的综合
 ├── LICENSE
 ├── README.md
 └── 方案.docx
+```
 ## 使用说明
 ### 用户注册与登录
 - 访问 ```/account/register``` 页面进行注册。
