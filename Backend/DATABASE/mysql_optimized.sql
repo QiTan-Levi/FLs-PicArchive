@@ -1,5 +1,5 @@
--- 用户表
-CREATE TABLE users (
+-- 检查 users 表是否存在，如果不存在则创建
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY, -- 用户ID
     username VARCHAR(50) NOT NULL UNIQUE, -- 用户名
     password VARCHAR(255) NOT NULL, -- 密码
@@ -7,11 +7,11 @@ CREATE TABLE users (
     avatar VARCHAR(255) COMMENT "用户头像", -- 用户头像
     regis_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 注册时间
     last_login DATETIME, -- 上次登录时间
-    status TINYINT DEFAULT 1 COMMENT '1-正常 0-禁用' -- 用户状态
+    status TINYINT DEFAULT 1 COMMENT '0-禁用 1-正常 2-审图员 3-管理员' -- 用户状态
 );
 
--- 图片表，合并已接受和待审核图片表的部分字段
-CREATE TABLE images (
+-- 检查 images 表是否存在，如果不存在则创建
+CREATE TABLE IF NOT EXISTS images (
     -- 图片的唯一标识
     id INT AUTO_INCREMENT PRIMARY KEY,
     -- 用户的唯一标识
@@ -40,6 +40,8 @@ CREATE TABLE images (
     upload_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- 是否为精选图片
     is_featured TINYINT DEFAULT 0 COMMENT '0-普通 1-精选',
+    -- 审核评星
+    rating TINYINT DEFAULT 0 COMMENT '0-未评 1-一星 2-两星 3-三星',
     -- 图片的文件类型，限定为 jpg/jpeg
     file_type ENUM('jpg', 'jpeg') NOT NULL,
     -- 审核人/待审核人
@@ -58,12 +60,12 @@ CREATE TABLE images (
     INDEX idx_aircraft_model (aircraft_model),
     -- 为 airline_operator 字段创建索引，提高查询效率
     INDEX idx_airline_operator (airline_operator),
-    -- 为 shooting_location 字段创建索引，提高查询效率
-    INDEX idx_shooting_location (shooting_location)
+    -- 为 location 字段创建索引，提高查询效率
+    INDEX idx_location (location)
 );
 
--- 点赞、评论表
-CREATE TABLE comments (
+-- 检查 comments 表是否存在，如果不存在则创建
+CREATE TABLE IF NOT EXISTS comments (
     -- 评论、点赞ID
     id INT AUTO_INCREMENT PRIMARY KEY,
     -- 类型
@@ -84,8 +86,8 @@ CREATE TABLE comments (
     CHECK ((type = 0 AND content IS NOT NULL) OR (type = 1))
 );
 
--- 操作记录表//存储哪个id的谁（操作员id）的何时（操作时间）在何地（操作IP地址）操作了什么（操作内容、操作详情）怎么了（操作结果）哪个id的照片（图片id），这个操作的id（操作id）
-CREATE TABLE system_logs (
+-- 检查 system_logs 表是否存在，如果不存在则创建
+CREATE TABLE IF NOT EXISTS system_logs (
     -- 操作ID
     id INT AUTO_INCREMENT PRIMARY KEY,
     -- 操作人ID
@@ -103,5 +105,7 @@ CREATE TABLE system_logs (
     -- 操作时间
     operation_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- 外键关联用户表
-    FOREIGN KEY (operator_id) REFERENCES users(id)
-);    
+    FOREIGN KEY (operator_id) REFERENCES users(id),
+    -- 外键关联图片表
+    FOREIGN KEY (image_id) REFERENCES images(id)
+);

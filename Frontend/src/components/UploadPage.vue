@@ -31,7 +31,7 @@
         style="width: 51%; margin-right: 0%;margin-top: 70px;margin-bottom: -1px;">
         <h1>上传须知</h1>
         <p>为了打造一个优质的原创平台，在上传照片时，您需要仔细阅读并遵守以下要求：</p>
-        <ul style="font-family: 汉仪中园简;font-size: 16px;line-height: 50px">
+        <ul style="font-family: 汉仪中园简;font-size: 16px;line-height: 44px">
           <li>
             <strong>格式要求</strong>：仅接受 JPG/JPEG 格式照片，请提前完成格式转环换。
           </li>
@@ -63,6 +63,7 @@
             <ul>
               <li><strong>注册号、机型</strong>
                 <ul>
+                  <li>确认是否确实有 “ - ”</li>
                   <li>空客机型需填出Airbus <u>A321</u></li>
                   <li>波音机型需填出Boeing <u>777-300ER</u></li>
                 </ul>
@@ -423,7 +424,7 @@ const handleSubmit = async () => {
   uploadData.append('timeZone', formData.timeZone);
   uploadData.append('shootTime', formData.shootTime);
   uploadData.append('registrationNumber', formData.registrationNumber);
-  uploadData.append('flightNumber', formData.flightNumber);
+  uploadData.append('flightNumber', formData.flightNumber || 'N/A');
   uploadData.append('model', formData.model);
   uploadData.append('weatherConditions', JSON.stringify(formData.weatherConditions || [])); // 确保不为空
   uploadData.append('description', formData.description);

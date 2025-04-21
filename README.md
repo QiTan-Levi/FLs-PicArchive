@@ -56,6 +56,41 @@ FocusLevi's Picture Archive System 是一个专注于航空图片管理的综合
    cd frontend
    npm run serve
    ```
+
+## 项目结构
+```
+\FsPicArchieve
+├── .git/
+├── .vscode/
+├── Backend/
+│   ├── DATABASE/
+│   │   └── mysql_optimized.sql
+│   ├── app.py
+│   ├── uploads/
+│   ├── utils.py
+│   └── verifycode_email_template.html
+├── Frontend/
+│   ├── .gitignore
+│   ├── .vscode/
+│   ├── README.md
+│   ├── index.html
+│   ├── package.json
+│   ├── public/
+│   ├── robots.txt
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── register.vue
+│   │   │   └── 临时备份，无需理会/
+│   │   │       └── UploadPage copy.vue
+│   │   ├── main.js
+│   │   ├── main.css
+│   │   └── store/
+│   │       └── store.js
+│   ├── tailwind.config.js
+│   └── vite.config.js
+├── LICENSE
+├── README.md
+└── 方案.docx
 ## 使用说明
 ### 用户注册与登录
 - 访问 ```/account/register``` 页面进行注册。

@@ -1,7 +1,7 @@
 import json
 from re import U
 from tkinter import image_names, image_types
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, request, make_response, jsonify , url_for
 from flask_cors import CORS
 import time
 import uuid
@@ -143,11 +143,8 @@ def upload_image():
         print("Parameters:", (user_id, shooting_time, timezone, registrationnumber,
                               aircraft_model, image_type_str, weather_str, description,
                               location, datetime.now(), 'jpg', file, flightNumber, airlineOperator))
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        
-        # 读取文件内容为二进制数据
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rb') as f:
-            file_data = f.read()
+        # 直接从上传的文件对象读取二进制数据
+        file_data = file.read()
 
         # Insert into MySQL record
         cursor.execute("""

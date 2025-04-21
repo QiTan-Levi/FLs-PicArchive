@@ -33,30 +33,13 @@ const routes = [
     name: 'Profile',
     component: Profile,
     meta: { requiresAuth: true }
-  }
+  },
+
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL || '/'), // Use import.meta.env for environment variables
   routes
-})
+});
 
-
-// 路由守卫
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    // 检查用户是否登录
-    if (!localStorage.getItem('token')) {
-      next({
-        path: '/account/login',
-        query: { redirect: to.fullPath }
-      })
-    } else {
-      next()
-    }
-  } else {
-    next()
-  }
-})
-
-export default router
+export default router;

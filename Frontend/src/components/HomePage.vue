@@ -59,8 +59,17 @@
     <div v-for="image in images" :key="image.id" class="image-card">
       <img :src="image.url" :alt="image.title" class="grid-image">
       <div class="image-info">
-        <h3>{{ image.title }}</h3>
-        <p>{{ image.description }}</p>
+        <div class="image-meta">
+          <span class="photographer">{{ image.photographer }}</span>
+          <span class="views">{{ image.views }} 浏览量</span>
+        </div>
+        <div class="image-details">
+          <span class="model">{{ image.model }}</span>
+          <span class="registration">{{ image.registration }}</span>
+          <button @click="likeImage(image.id)" class="like-button">
+            <i class="fas fa-thumbs-up"></i> {{ image.likes }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -183,6 +192,8 @@ const handleLogout = async () => {
 // }
 
 </script>
+
+
 <style scoped>
 .home-container {
   min-height: 100vh;
@@ -328,6 +339,34 @@ const handleLogout = async () => {
 
 .image-info {
   padding: 1rem;
+}
+
+.image-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.image-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.like-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #262d91;
+  display: flex;
+  align-items: center;
+}
+
+.like-button i {
+  margin-right: 0.5rem;
 }
 
 .image-info h3 {
