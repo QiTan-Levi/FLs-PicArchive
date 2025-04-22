@@ -7,12 +7,7 @@
         <router-link to="/" class="logo">
           <img src="@/assets/logo.svg" alt="Logo" class="logo-image">
           <span class="logo-text" style="font-family: Maple Mono NF CN;">ByInfo - Fs Picture Archieve</span>        </router-link>
-        <div class="search-box">
-          <input type="text" placeholder="搜索图片..." v-model="searchQuery">
-          <button @click="search" class="search-button">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
+
       </div>
       <div class="nav-right">
         <div v-if="isLoggedIn" class="user-info">
@@ -61,7 +56,15 @@
       <div class="image-info">
         <div class="image-meta">
           <span class="photographer">{{ image.username }}</span>
-          <span class="views">{{ image.views || 0 }} 浏览量</span>
+          <span class="photographer">
+            <img 
+              src="@/assets/views.svg" 
+              alt="Views" 
+              class="views-icon" 
+              style="margin-top: -0.2rem ;margin-right: -0.06rem; filter: invert(40%) sepia(0%) saturate(1%) hue-rotate(231deg) brightness(92%) contrast(89%);"
+            />
+            {{ image.views || 'Unknown' }}
+          </span>
         </div>
         <div class="image-details">
           <span class="model">{{ image.aircraft_model }}</span>
@@ -358,6 +361,10 @@ const likeImage = async (imageId) => {
 
 .image-info {
   padding: 1rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
 }
 
 .image-meta {
@@ -397,7 +404,12 @@ const likeImage = async (imageId) => {
   margin: 0.5rem 0 0;
   color: #666;
 }
-
+.views-icon {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
 /* 页脚样式 */
 .footer {
   padding: 2rem;

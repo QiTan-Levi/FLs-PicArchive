@@ -48,56 +48,62 @@ def allowed_file(filename):
 def home():
     return "This is backend of Focus's Transportation Archive.\nPerhaps, you should use the frontend to visit the website."
 
-@app.route('/api/images', methods=['GET'])
-def get_images():
-    category = request.args.get('category', '全部')
-    search_query = request.args.get('search', '')
+@app.route('/api/images', methods=['GET'])  # 定义一个API路由，用于获取图片，只接受GET请求
+def get_images():  # 定义获取图片的函数
+    category = request.args.get('category', '全部')  # 从请求参数中获取类别，默认为'全部'
+    search_query = request.args.get('search', '')  # 从请求参数中获取搜索关键词，默认为空字符串
+    limit = request.args.get('limit', '20')  # 获取限制数量，默认为20张
     
-    cursor = mysql.cursor()
-    base_query = """
+    try:
+        limit = int(limit)  # 将limit转换为整数
+    except ValueError:
+        limit = 20  # 如果转换失败，使用默认值20
+    
+    cursor = mysql.cursor()  # 创建MySQL数据库游标
+    base_query = """  # 定义基础SQL查询语句
         SELECT i.id, i.file_type, i.aircraft_model, i.location, 
                i.image_description, i.upload_time, i.is_featured, i.user_id, 
                u.username, i.image_data
         FROM images i
         JOIN users u ON i.user_id = u.id
         WHERE i.is_pending = 0
-    """
+    """  # 选择未处于待审核状态的图片，并关联用户表获取用户名
     
-    if category == '全部':
-        if search_query:
-            cursor.execute(base_query + " AND (i.aircraft_model LIKE %s OR i.image_description LIKE %s)", 
-                         (f'%{search_query}%', f'%{search_query}%'))
-        else:
-            cursor.execute(base_query)
-    else:
-        if search_query:
-            cursor.execute(base_query + " AND i.aircraft_model = %s AND (i.aircraft_model LIKE %s OR i.image_description LIKE %s)", 
-                         (category, f'%{search_query}%', f'%{search_query}%'))
-        else:
-            cursor.execute(base_query + " AND i.aircraft_model = %s", (category,))
+    if category == '全部':  # 如果类别是'全部'
+        if search_query:  # 如果有搜索关键词
+            cursor.execute(base_query + " AND (i.aircraft_model LIKE %s OR i.image_description LIKE %s) ORDER BY i.upload_time DESC LIMIT %s", 
+                         (f'%{search_query}%', f'%{search_query}%', limit))  # 执行SQL查询，搜索飞机型号或图片描述中包含关键词的图片
+        else:  # 如果没有搜索关键词
+            cursor.execute(base_query + " ORDER BY i.upload_time DESC LIMIT %s", (limit,))  # 执行基础SQL查询，获取所有图片，按上传时间降序排列，限制数量
+    else:  # 如果类别不是'全部'
+        if search_query:  # 如果有搜索关键词
+            cursor.execute(base_query + " AND i.aircraft_model = %s AND (i.aircraft_model LIKE %s OR i.image_description LIKE %s) ORDER BY i.upload_time DESC LIMIT %s", 
+                         (category, f'%{search_query}%', f'%{search_query}%', limit))  # 执行SQL查询，筛选特定飞机型号且包含搜索关键词的图片
+        else:  # 如果没有搜索关键词
+            cursor.execute(base_query + " AND i.aircraft_model = %s ORDER BY i.upload_time DESC LIMIT %s", (category, limit))  # 执行SQL查询，只筛选特定飞机型号的图片
     
-    images = cursor.fetchall()
-    result = []
-    for image in images:
-        # Encode the binary data to Base64
-        filedata_base64 = base64.b64encode(image[9]).decode('utf-8')
+    images = cursor.fetchall()  # 获取所有查询结果
+    result = []  # 初始化结果列表
+    for image in images:  # 遍历每一张图片
+        # 将二进制图片数据编码为Base64字符串
+        filedata_base64 = base64.b64encode(image[9]).decode('utf-8')  # 将图片二进制数据转换为Base64编码的字符串
         
-        result.append({
-            'id': image[0],
-            'aircraft_model': image[2],
-            'location': image[3],
-            'description': image[4],
-            'upload_time': image[5].strftime('%Y-%m-%d %H:%M:%S') if image[5] else None,
-            'user_id': image[7],
-            'username': image[8],
-            'filename': image[1],
-            'content_type': 'image/jpeg',  # Assuming all images are jpeg format
-            'filedata': filedata_base64  # Use Base64 encoded string
+        result.append({  # 将图片信息添加到结果列表中
+            'id': image[0],  # 图片ID
+            'aircraft_model': image[2],  # 飞机型号
+            'location': image[3],  # 拍摄地点
+            'description': image[4],  # 图片描述
+            'upload_time': image[5].strftime('%Y-%m-%d %H:%M:%S') if image[5] else None,  # 上传时间，格式化为字符串
+            'user_id': image[7],  # 上传用户ID
+            'username': image[8],  # 上传用户名
+            'filename': image[1],  # 文件名
+            'content_type': 'image/jpeg',  # 内容类型，假设所有图片都是JPEG格式
+            'filedata': filedata_base64  # 使用Base64编码的图片数据
         })
     
-    return jsonify({
-        'status': 'success',
-        'data': result
+    return jsonify({  # 返回JSON格式的响应
+        'status': 'success',  # 状态为成功
+        'data': result  # 数据为处理后的图片列表
     })
 
 

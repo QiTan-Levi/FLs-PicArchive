@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS images (
     image_data LONGBLOB NOT NULL,
     -- 用于区分图片是待审核还是已审核
     is_pending TINYINT DEFAULT 1 COMMENT '1-待审核 0-已审核',
+    --浏览量
+    views_num INT DEFAULT 0,
     -- 外键约束，关联 users 表的 id 字段
     FOREIGN KEY (user_id) REFERENCES users(id),
     -- 为 registration_number 字段创建索引，提高查询效率
