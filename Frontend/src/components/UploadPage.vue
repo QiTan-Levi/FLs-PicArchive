@@ -33,27 +33,27 @@
         <p>为了打造一个优质的原创平台，在上传照片时，您需要仔细阅读并遵守以下要求：</p>
         <ul style="font-family: 汉仪中园简;font-size: 16px;line-height: 44px">
           <li>
-            <strong>格式要求</strong>：仅接受 JPG/JPEG 格式照片，请提前完成格式转环换。
+            <strong>格式要求</strong>：仅接受 <span class="maple-mono">JPG/JPEG</span> 格式照片，比例建议 <span class="maple-mono">4:3</span>
           </li>
           <li>
-            <strong>大小限制</strong>：单张照片文件大小不得超过 30MB，请提前压缩处理。
+            <strong>大小限制</strong>：单张照片文件大小不得超过 <span class="maple-mono">30MB</span>
           </li>
           <li>
             <strong>内容规范</strong>
             <ul>
-              <li>请勿上传带有明显人脸的照片，以及包含网络梗图的内容。</li>
-              <li>您上传的照片须确保不侵犯任何个人、组织、企业等主体的合法权益。</li>
+              <li>请勿上传带有明显人脸的照片，以及包含网络梗图的内容</li>
+              <li>您上传的照片须确保不侵犯任何个人、组织、企业等主体的合法权益</li>
             </ul>
           </li>
 
           <li>
-            <strong>版权声明</strong>：所有上传照片必须为上传者本人拍摄，如上传者侵权与平台无关。
+            <strong>版权声明</strong>：所有上传照片必须为上传者本人拍摄，如上传者侵权与平台无关
           </li>
           <li>
-            <strong>信息完整性</strong>：任何信息缺失时，都标注 “N/A”。
+            <strong>信息完整</strong>：任何信息缺失时，都标注 “N/A”
           </li>
           <li>
-            <strong>内容合规</strong>：上传需严格遵守国家法律法规，禁止政治敏感、虚假等违规信息。
+            <strong>内容合规</strong>：上传需严格遵守国家法律法规，禁止政治敏感、虚假等违规信息
           </li>
         </ul>
         <h1>填写规范</h1>
@@ -63,20 +63,20 @@
             <ul>
               <li><strong>注册号、机型</strong>
                 <ul>
-                  <li>确认是否确实有 “ - ”</li>
-                  <li>空客机型需填出Airbus <u>A321</u></li>
-                  <li>波音机型需填出Boeing <u>777-300ER</u></li>
+                  <li>确认是否确实有 <b>“ <span class="maple-mono">-</span> ”</b></li>
+                  <li>空客机型需填出Airbus <u><b><span class="maple-mono">A321</span></b></u></li>
+                  <li>波音机型需填出Boeing <u><b><span class="maple-mono">777-300ER</span></b></u></li>
                 </ul>
               </li>
-              <li><strong>航空公司</strong>：除内地航司外，请填写英文全称。 </li>
+              <li><strong>航空公司</strong>：除内地航司外，请填写英文全称 </li>
             </ul>
           </li>
           <li>
             <strong>照片信息</strong>
             <ul>
-              <li><strong>拍摄时间：</strong>任何时候都允许使用北京时间，国外建议使用拍摄当地时间。</li>
-              <li><strong>拍摄地点：</strong>中国大陆及港澳台机场填写中文全称，其他填写英文全称。</li>
-              <li><strong>天气：</strong>建议以当时的ATIS信息为准，若未知则根据照片实际情况选择。</li>
+              <li><strong>拍摄时间：</strong>任何时候都允许使用北京时间，国外建议使用拍摄当地时间</li>
+              <li><strong>拍摄地点：</strong>中国大陆及港澳台机场填写中文全称，其他填写英文全称</li>
+              <li><strong>天气：</strong>建议以当时的<span class="maple-mono">ATIS</span>信息为准，若未知则根据照片实际情况选择</li>
             </ul>
           </li>
         </ul>
@@ -96,7 +96,7 @@
                 <div v-if="!previewImage" class="upload-placeholder r1">
                   <i class="fas fa-cloud-upload-alt"></i>
                   <p>点击或拖拽照片到此处上传</p>
-                  <p class="upload-hint">支持 JPEG、JPG 格式，最大 30MB</p>
+                  <p class="upload-hint">支持 <span class="maple-mono">JPEG</span>、<span class="maple-mono">JPG</span> 格式，最大 <span class="maple-mono">30MB</span></p>
                 </div>
                 <img v-else :src="previewImage" alt="预览照片" class="preview-image"
                   style="height: 200px;max-width: 80%; width: 80%; min-height: 150px; object-fit: contain;  border-radius: 8px; margin: 0px;">
@@ -116,7 +116,7 @@
               <ul style="list-style-type:''">
                 <li v-if="!selectedFile"
                   style="list-style-type:'';padding-left: 0; margin-left: 0; max-width: 200px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical;">
-                  当您上传图片后，此处将显示图片的RGB直方图和EXIF信息
+                  当您上传图片后，此处将显示图片的<span class="maple-mono">RGB</span>直方图和<span class="maple-mono">EXIF</span>信息
                 </li>
                 <li v-else>
                   <ul style="list-style-type:'·';padding-left: 0;margin-left: 0;">
@@ -138,19 +138,19 @@
             <h3>航空器信息</h3>
             <div class="form-group">
               <label>航班号</label>
-              <input type="text" v-model="formData.flightNumber" placeholder="e.g. HU7051 / MU501" required>
+              <input type="text" v-model="formData.flightNumber" placeholder="e.g. HU7051 / MU501" style="font-family: osifont;" required>
             </div>
             <div class="form-group">
               <label>注册号</label>
-              <input type="text" v-model="formData.registrationNumber" placeholder="e.g. B-2447 / JA383A" required>
+              <input type="text" v-model="formData.registrationNumber" placeholder="e.g. B-2447 / JA383A" style="font-family: osifont;" required>
             </div>
             <div class="form-group">
               <label>机型</label>
-              <input type="text" v-model="formData.model" placeholder="e.g. Airbus A320-251N / Boeing 787-8" required>
+              <input type="text" v-model="formData.model" placeholder="e.g. Airbus A320-251N / Boeing 787-8" style="font-family: osifont;" required >
             </div>
             <div class="form-group" style="position: relative; z-index: 100;">
               <label>航空公司</label>
-              <input type="text" v-model="formData.airlineOperator" placeholder="e.g. 中国南方航空 / All Nippon Airways"
+              <input type="text" v-model="formData.airlineOperator" placeholder="e.g. 中国南方航空 / Cathay Pacific" style="font-family: osifont;"
                 required>
             </div>
           </div>
@@ -162,7 +162,7 @@
                 <label>拍摄时间</label>
                 <div style="display: flex; gap: 10px; align-items: center;font-family: hermit;">
                   <select v-model="formData.timeZone"
-                    style="width: 45%; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 12px; background: rgba(255, 255, 255, 0.3); color: #2c3e50; font-size: 0.95rem; transition: all 0.3s ease;font-family: hermitMaple Mono NF CN Light;">
+                    style="width: 45%; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 12px; background: rgba(255, 255, 255, 0.3); color: #2c3e50; font-size: 0.95rem; transition: all 0.3s ease;font-family: osifont;">
                     <option value="UTC+12">UTC+12 (奥克兰)</option>
                     <option value="UTC+11">UTC+11 (霍尼亚拉)</option>
                     <option value="UTC+10">UTC+10 (悉尼)</option>
@@ -189,7 +189,7 @@
                     <option value="UTC-11">UTC-11 (中途岛)</option>
                     <option value="UTC-12">UTC-12 (贝克岛)</option>
                   </select>
-                  <input type="datetime-local" style="font-family: hermitMaple Mono NF CN Light; width: 60%;"
+                  <input type="datetime-local" style="font-family: osifont; width: 60%;"
                     v-model="formData.shootTime" required>
 
                 </div>
@@ -197,12 +197,12 @@
               <div class="form-group">
                 <label>拍摄地点</label>
                 <input type="text" v-model="formData.location"
-                  placeholder="e.g. 厦门高崎国际机场 / O'Hare International Airport" required>
+                  placeholder="e.g. 厦门高崎国际机场 / O'Hare International Airport" style="font-family: osifont;" required>
               </div>
               <div class="form-group">
                 <label>天气</label>
                 <div class="category-suggestions">
-                  <button v-for="condition in weatherOptions" :key="condition.label" type="button"
+                  <button v-for="condition in weatherOptions" :key="condition.label" type="button" style="font-size: 13.5px;"
                     :class="['category-tag', { active: formData.weatherConditions.includes(condition.value) }]"
                     @click="toggleWeatherCondition(condition.value)">
                     {{ condition.label }}
@@ -212,7 +212,7 @@
               <div class="form-group">
                 <label>类型（可以留空）</label>
                 <div class="category-suggestions">
-                  <button v-for="type in imageTypeOptions" :key="type.label" type="button"
+                  <button v-for="type in imageTypeOptions" :key="type.label" type="button" style="font-size: 13.3px;"
                     :class="['category-tag', { active: formData.imageTypes.includes(type.value) }]"
                     @click="toggleImageType(type.value)">
                     {{ type.label }}
@@ -1060,5 +1060,8 @@ select option {
 
 select::-webkit-scrollbar {
   display: none;
+}
+.maple-mono {
+  font-family: 'Maple Mono NF CN Regular', monospace;
 }
 </style>

@@ -2,93 +2,93 @@
   <div class="home-container bg-gradient-to-r from-blue-500 to-purple-500">
     <!-- 顶部导航栏 -->
     <nav class="nav-bar ">
-    <div class="nav-content">
-      <div class="nav-left">
-        <router-link to="/" class="logo">
-          <img src="@/assets/logo.svg" alt="Logo" class="logo-image">
-          <span class="logo-text" style="font-family: Maple Mono NF CN;">ByInfo - Fs Picture Archieve</span>        </router-link>
+      <div class="nav-content">
+        <div class="nav-left">
+          <router-link to="/" class="logo">
+            <img src="@/assets/logo.svg" alt="Logo" class="logo-image">
+            <span class="logo-text" style="font-family: Maple Mono NF CN;">ByInfo - Fs Picture
+              Archieve</span></router-link>
 
-      </div>
-      <div class="nav-right">
-        <div v-if="isLoggedIn" class="user-info">
-          <span class="user-name">{{ userName }}</span>
-          <div class="dropdown-menu">
-            <router-link to="/upload" class="dropdown-item">上传图片</router-link>
-            <router-link to="/my-profile" class="dropdown-item">个人资料</router-link>
-            <button @click="handleLogout" class="dropdown-item logout-button">退出登录</button>
+        </div>
+        <div class="nav-right">
+          <div v-if="isLoggedIn" class="user-info">
+            <span class="user-name">{{ userName }}</span>
+            <div class="dropdown-menu">
+              <router-link to="/upload" class="dropdown-item">上传图片</router-link>
+              <router-link to="/my-profile" class="dropdown-item">个人资料</router-link>
+              <button @click="handleLogout" class="dropdown-item logout-button">退出登录</button>
+            </div>
+          </div>
+          <div v-else>
+            <router-link to="/account/login" class="nav-button">登录</router-link>
+            <router-link to="/account/register" class="nav-button primary">注册</router-link>
           </div>
         </div>
-        <div v-else>
-          <router-link to="/account/login" class="nav-button">登录</router-link>
-          <router-link to="/account/register" class="nav-button primary">注册</router-link>
+      </div>
+    </nav>
+    <!-- 轮播图区域 -->
+    <div class="carousel">
+      <div v-for="(image, index) in featuredImages" :key="index" class="carousel-item">
+        <img :src="image.url" :alt="image.title" class="carousel-image">
+        <div class="carousel-info">
+          <h3>{{ image.title }}</h3>
+          <p>{{ image.description }}</p>
+        </div>
+      </div>
+      <div class="carousel-indicators">
+        <span v-for="(image, index) in featuredImages" :key="index" :class="{ 'active': currentSlide === index }"
+          @click="goToSlide(index)"></span>
+      </div>
+    </div>
+    <!-- 分类筛选区 -->
+    <div class="filters">
+      <button v-for="category in categories" :key="category"
+        :class="['filter-button', { active: selectedCategory === category }]" @click="selectCategory(category)">
+        {{ category }}
+      </button>
+    </div>
+    <!-- 热门图片展示区 -->
+    <div class="image-grid">
+      <div v-for="image in images.data" :key="image.id" class="image-card">
+        <img :src="'data:image/jpeg;base64,' + image.filedata" :alt="image.aircraft_model" class="grid-image">
+        <div class="status-indicator" :style="{ backgroundColor: getStatusColor(image.rating) }" v-html="getStarDisplay(image.rating)">
+        </div>
+        <div class="image-info">
+          <div class="image-meta">
+            <span class="model">{{ image.reg_number + ' | ' + image.aircraft_model }}</span>
+            <span class="airline">{{ image.airline || '' }}</span>
+
+          </div>
+          <div class="image-details" style=" color: #262d91;">
+            <span class="photographer" style=" color: #262d91;">{{ image.username }}</span>
+            <span class="photographer views" style=" color: #262d91;">
+              <img src="@/assets/views.svg" alt="Views" class="views-icon"
+                style="margin-top: 0.00788rem  ;margin-right: -0.06rem; " />
+                &hairsp;
+                {{ image.views || 'No' }}
+              &nbsp;&nbsp;&thinsp;
+              <img src="@/assets/likie.svg" alt="Likes" class="views-icon"
+                style="margin-top: 0.00788rem ;margin-right: -0.06rem; height: 12px; width: 12px; " />
+                &hairsp;
+                {{ image.likes || 'No' }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
-  </nav>
-  <!-- 轮播图区域 -->
-  <div class="carousel">
-    <div v-for="(image, index) in featuredImages" :key="index" class="carousel-item">
-      <img :src="image.url" :alt="image.title" class="carousel-image">
-      <div class="carousel-info">
-        <h3>{{ image.title }}</h3>
-        <p>{{ image.description }}</p>
-      </div>
-    </div>
-    <div class="carousel-indicators">
-      <span v-for="(image, index) in featuredImages" :key="index" :class="{'active': currentSlide === index}" @click="goToSlide(index)"></span>
-    </div>
-  </div>
-  <!-- 分类筛选区 -->
-  <div class="filters">
-    <button 
-      v-for="category in categories" 
-      :key="category"
-      :class="['filter-button', { active: selectedCategory === category }]"
-      @click="selectCategory(category)"
-    >
-      {{ category }}
-    </button>
-  </div>
-  <!-- 热门图片展示区 -->
-  <div class="image-grid">
-    <div v-for="image in images.data" :key="image.id" class="image-card">
-      <img :src="'data:image/jpeg;base64,' + image.filedata" :alt="image.aircraft_model" class="grid-image">
-      <div class="image-info">
-        <div class="image-meta">
-          <span class="photographer">{{ image.username }}</span>
-          <span class="photographer">
-            <img 
-              src="@/assets/views.svg" 
-              alt="Views" 
-              class="views-icon" 
-              style="margin-top: -0.2rem ;margin-right: -0.06rem; filter: invert(40%) sepia(0%) saturate(1%) hue-rotate(231deg) brightness(92%) contrast(89%);"
-            />
-            {{ image.views || 'Unknown' }}
-          </span>
+    <!-- 底部页脚 -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <a href="#" class="social-link">关于我们</a>
+          <a href="#" class="social-link">使用条款</a>
+          <a href="#" class="social-link">隐私政策</a>
         </div>
-        <div class="image-details">
-          <span class="model">{{ image.aircraft_model }}</span>
-          <span class="registration">{{ image.registration || '' }}</span>
-          <button @click="likeImage(image.id)" class="like-button">
-            <i class="fas fa-thumbs-up"></i> {{ image.likes || 0 }}
-          </button>
+        <div class="footer-section">
+          <span>Copyright 2025 by TanQi. All rights reserved.</span>
         </div>
       </div>
-    </div>
-  </div>
-  <!-- 底部页脚 -->
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-section">
-        <a href="#" class="social-link">关于我们</a>
-        <a href="#" class="social-link">使用条款</a>
-        <a href="#" class="social-link">隐私政策</a>
-      </div>
-      <div class="footer-section">
-        <span>© 2024 图库. All rights reserved.</span>
-      </div>
-    </div>
-  </footer>
+    </footer>
   </div>
 </template>
 
@@ -120,6 +120,8 @@ const images = ref([]); // Example: Default empty array
 const categories = ['全部', '民航', '军用', '通用'];
 const selectedCategory = ref('全部');
 
+
+
 // Simplified onMounted - remove store actions
 onMounted(async () => {
   isLoggedIn.value = localStorage.getItem('isLoggedIn') === 'true';
@@ -136,16 +138,45 @@ onMounted(async () => {
     if (!imagesResponse.ok) throw new Error('Failed to fetch images');
     images.value = await imagesResponse.json();
     console.log('Images Data:', images.value);
+    
+
 
   } catch (error) {
     console.error('Error fetching data:', error);
   }
 });
-const fileInput = ref(null);
 const previewImage = ref('');
 const uploadProgress = ref(0);
 const uploading = ref(false);
+const getStatusColor = (rating) => {
+  switch (rating) {
+    case '':
+      return '#e74c3c';
+    case 1 :
+      return '#2ecc71';
+    case 2:
+      return '#2ecc71';
+    case 3:
+      return '#2ecc71';
+    case '未知用途':
+      return '#2ecc71';
+    default:
+      return '#e74c3c'; // 默认颜色
+  }
+};
 
+const getStarDisplay = (rating) => {
+  switch (rating) {
+    case 1:
+      return '&emsp;★&emsp;';
+    case 2:
+      return '&ensp;★★&ensp;';
+    case 3:
+      return '★★★';
+    default:
+      return '未审核'; // 默认无星星
+  }
+};
 const formData = reactive({
   model: '',
   location: '',
@@ -157,20 +188,13 @@ const formData = reactive({
 // 搜索功能 (kept)
 const search = () => {
   if (searchQuery.value.trim() !== '') {
-    router.push({ 
-      path: '/search', 
+    router.push({
+      path: '/search',
       query: { q: searchQuery.value }
     });
   }
 };
 
-// Removed category selection logic
-// const selectCategory = (category) => {
-//   selectedCategory.value = category;
-//   store.dispatch('fetchImages', { category });
-// };
-
-// Simplified logout - remove store action
 const handleLogout = async () => {
   try {
     // Clear all auth related local storage
@@ -218,9 +242,9 @@ const likeImage = async (imageId) => {
 
 <style scoped>
 .home-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding-top: 80px;
+  min-height: 1000vh;
+  background: linear-gradient(200deg, #e2e9f3 0%, #c3cfe2 100%);
+  padding-top: 50px;
 }
 
 /* 导航栏样式 */
@@ -230,7 +254,7 @@ const likeImage = async (imageId) => {
   left: 0;
   right: 0;
   height: 70px;
-  padding: 0 2rem;
+  padding: 0 rem;
   z-index: 1000;
   backdrop-filter: blur(12px);
 }
@@ -267,30 +291,6 @@ const likeImage = async (imageId) => {
   font-weight: bold;
 }
 
-.search-box {
-  position: relative;
-  width: 300px;
-}
-
-.search-box input {
-  width: 100%;
-  padding: 0.5rem 2.5rem 0.5rem 1rem;
-  border: none;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(5px);
-}
-
-.search-button {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
 .nav-right {
   display: flex;
   gap: 1rem;
@@ -311,7 +311,7 @@ const likeImage = async (imageId) => {
 
 /* 主要内容区样式 */
 .nav-content {
-  max-width:1750px;
+  max-width: 1750px;
   height: 100%;
   margin: 0 auto;
 }
@@ -342,11 +342,15 @@ const likeImage = async (imageId) => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
+  max-width: 1750px;
+  margin-left: 398px;
+  margin-right: 398px;
 }
 
 .image-card {
   overflow: hidden;
   transition: transform 0.3s ease;
+
 }
 
 .image-card:hover {
@@ -366,7 +370,16 @@ const likeImage = async (imageId) => {
   margin-left: 0.3rem;
   margin-right: 0.3rem;
 }
-
+.status-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: white;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-size: 13px;
+}
 .image-meta {
   display: flex;
   justify-content: space-between;
@@ -404,12 +417,15 @@ const likeImage = async (imageId) => {
   margin: 0.5rem 0 0;
   color: #666;
 }
+
 .views-icon {
   width: 14px;
   height: 14px;
   vertical-align: middle;
   margin-right: 4px;
+  filter: invert(24%) sepia(100%) saturate(1000%) hue-rotate(180deg) brightness(55%) contrast(190%);
 }
+
 /* 页脚样式 */
 .footer {
   padding: 2rem;
@@ -444,7 +460,8 @@ const likeImage = async (imageId) => {
   align-items: center;
   gap: 1rem;
   position: relative;
-  padding: 10px; /* 增加padding以扩大悬停区域 */
+  padding: 10px;
+  /* 增加padding以扩大悬停区域 */
 }
 
 .user-avatar {
@@ -517,6 +534,7 @@ const likeImage = async (imageId) => {
   cursor: pointer;
   width: 100%;
 }
+
 .featured-section {
   margin-bottom: 2rem;
 }
@@ -546,7 +564,7 @@ const likeImage = async (imageId) => {
   left: 0;
   right: 0;
   padding: 2rem;
-  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
   color: white;
 }
 
@@ -595,6 +613,12 @@ const likeImage = async (imageId) => {
   color: #666;
 }
 
+.views {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 @media (max-width: 1024px) {
   .latest-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -613,6 +637,3 @@ const likeImage = async (imageId) => {
   }
 }
 </style>
-
-
-

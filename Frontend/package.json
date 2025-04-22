@@ -4,7 +4,7 @@
   "description": "This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.",
   "main": "tailwind.config.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite  --host 0.0.0.0 --port 3000",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

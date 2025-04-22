@@ -21,7 +21,7 @@ import base64
 app = Flask(__name__)
 CORS(app, supports_credentials=True, resources={
     r"/*": {
-        "origins": ["http://localhost:5173", "http://localhost:5000"],
+        "origins": ["http://localhost:5173", "http://localhost:5000", "http://localhost:3000"],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
         "expose_headers": ["Content-Range", "X-Content-Range"],
@@ -59,9 +59,9 @@ def get_images():  # 定义获取图片的函数
     
     cursor = mysql.cursor()  # 创建MySQL数据库游标
     base_query = """  # 定义基础SQL查询语句
-        SELECT i.id, i.file_type, i.aircraft_model, i.location, 
+        SELECT i.id, i.registration_number, i.file_type, i.aircraft_model, i.location, 
                i.image_description, i.upload_time, i.is_featured, i.user_id, 
-               u.username, i.image_data
+               u.username, i.image_data,i.airline_operator,i.rating
         FROM images i
         JOIN users u ON i.user_id = u.id
         WHERE i.is_pending = 0
@@ -84,17 +84,21 @@ def get_images():  # 定义获取图片的函数
     result = []  # 初始化结果列表
     for image in images:  # 遍历每一张图片
         # 将二进制图片数据编码为Base64字符串
-        filedata_base64 = base64.b64encode(image[9]).decode('utf-8')  # 将图片二进制数据转换为Base64编码的字符串
-        
+        # Ensure image[9] is in bytes before encoding
+        filedata_base64 = base64.b64encode(image[10]).decode('utf-8')  # 将图片二进制数据转换为Base64编码的字符串
+        print(str(image[:-3])+str(image[-2:]))
         result.append({  # 将图片信息添加到结果列表中
             'id': image[0],  # 图片ID
-            'aircraft_model': image[2],  # 飞机型号
-            'location': image[3],  # 拍摄地点
-            'description': image[4],  # 图片描述
-            'upload_time': image[5].strftime('%Y-%m-%d %H:%M:%S') if image[5] else None,  # 上传时间，格式化为字符串
-            'user_id': image[7],  # 上传用户ID
-            'username': image[8],  # 上传用户名
-            'filename': image[1],  # 文件名
+            'reg_number': image[1],  # 飞机注册号
+            'airline': image[-2],  # 航空公司
+            'rating': int(image[-1]),  # 评分
+            'aircraft_model': image[3],  # 飞机型号
+            'location': image[4],  # 拍摄地点
+            'description': image[5],  # 图片描述
+            'upload_time': image[6].strftime('%Y-%m-%d %H:%M:%S') if image[6] else None,  # 上传时间，格式化为字符串
+            'user_id': image[8],  # 上传用户ID
+            'username': image[9],  # 上传用户名
+            'filename': image[2],  # 文件名
             'content_type': 'image/jpeg',  # 内容类型，假设所有图片都是JPEG格式
             'filedata': filedata_base64  # 使用Base64编码的图片数据
         })
