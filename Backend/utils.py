@@ -3,7 +3,6 @@ from configparser import ConfigParser
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
-from gridfs import GridFS
 
 verification_codes = {}
 mysql = None
