@@ -9,11 +9,12 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
-    QPushButton,
     QTextEdit,
+    QLineEdit
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QObject
 import os
+import psutil
 
 
 class OutputSignals(QObject):
@@ -86,6 +87,21 @@ def is_port_in_use(port):
         return s.connect_ex(("localhost", port)) == 0
 
 
+def kill_process_tree(pid):
+    try:
+        parent = psutil.Process(pid)
+        children = parent.children(recursive=True)
+        for child in children:
+            child.terminate()
+        _, still_alive = psutil.wait_procs(children, timeout=5)
+        for p in still_alive:
+            p.kill()
+        parent.terminate()
+        parent.wait(timeout=5)
+    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
+        pass
+
+
 class ProjectManager(QWidget):
     def __init__(self):
         super().__init__()
@@ -97,63 +113,12 @@ class ProjectManager(QWidget):
         self.signals = OutputSignals()
         self.signals.frontend_output_signal.connect(self.append_frontend_output)
         self.signals.backend_output_signal.connect(self.append_backend_output)
+        self.quit_confirm = False
+        self.command_history = []
+        self.history_index = -1
+        self.is_closed = False
 
     def initUI(self):
-        # 按钮布局
-        button_layout = QHBoxLayout()
-        button_layout.setSpacing(10)
-        start_button = QPushButton("Start")
-        start_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #28a745;
-                color: white;
-                border-radius: 5px;
-                padding: 10px 20px;
-            }
-            QPushButton:hover {
-                background-color: #218838;
-            }
-        """
-        )
-        start_button.clicked.connect(self.start_projects)
-
-        stop_button = QPushButton("Stop")
-        stop_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #dc3545;
-                color: white;
-                border-radius: 5px;
-                padding: 10px 20px;
-            }
-            QPushButton:hover {
-                background-color: #c82333;
-            }
-        """
-        )
-        stop_button.clicked.connect(self.stop_projects)
-
-        restart_button = QPushButton("Restart")
-        restart_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #007bff;
-                color: white;
-                border-radius: 5px;
-                padding: 10px 20px;
-            }
-            QPushButton:hover {
-                background-color: #0069d9;
-            }
-        """
-        )
-        restart_button.clicked.connect(self.restart_projects)
-
-        button_layout.addWidget(start_button)
-        button_layout.addWidget(stop_button)
-        button_layout.addWidget(restart_button)
-
         # 输出布局
         output_layout = QHBoxLayout()
         output_layout.setSpacing(10)
@@ -185,16 +150,50 @@ class ProjectManager(QWidget):
         output_layout.addWidget(self.frontend_output, 2)
         output_layout.addWidget(self.backend_output, 3)
 
+        # 底部输入输出布局
+        bottom_layout = QVBoxLayout()
+        self.manager_output = QTextEdit()
+        self.manager_output.setReadOnly(True)
+        self.manager_output.setStyleSheet(
+            """
+            QTextEdit {
+                border: 1px solid #ced4da;
+                border-radius: 5px;
+                padding: 5px;
+                margin-bottom: 5px;
+                min-height: 50px;
+            }
+        """
+        )
+        self.manager_input = QLineEdit()
+        self.manager_input.setStyleSheet(
+            """
+            QLineEdit {
+                border: 1px solid #ced4da;
+                border-radius: 5px;
+                padding: 5px;
+            }
+        """
+        )
+        self.manager_input.returnPressed.connect(self.handle_input)
+        self.manager_input.keyPressEvent = self.handle_key_press
+        bottom_layout.addWidget(self.manager_output)
+        bottom_layout.addWidget(self.manager_input)
+
         # 主布局
         main_layout = QVBoxLayout()
-        main_layout.setSpacing(20)
-        main_layout.addLayout(button_layout)
+        main_layout.setSpacing(10)
         main_layout.addLayout(output_layout)
+        main_layout.addLayout(bottom_layout)
 
         self.setLayout(main_layout)
-        self.setWindowTitle("Project Manager")
+        # 修改窗口标题
+        self.setWindowTitle("**ByInfo** Fs Picture Archive Project Operation & Deployment Manager")
         self.setGeometry(300, 300, 1000, 600)
+        # 去掉顶部窗口操作栏
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.show()
+        self.manager_input.setFocus()
 
     def start_projects(self):
         if self.frontend_process is None:
@@ -210,23 +209,16 @@ class ProjectManager(QWidget):
             frontend_dir = os.path.join(current_dir, "Frontend")
             npm_path = os.path.join(os.environ.get("APPDATA"), "npm", "npm.cmd")
             port = 5173
-
-            command = [npm_path, "run", "dev", "--", f"--port={port}"]
             self.frontend_process = subprocess.Popen(
-                command,
+                [npm_path, "run", "dev", "--", f"--port={port}"],
                 cwd=frontend_dir,
+                stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
                 encoding="utf-8",
             )
-            while True:
-                output = self.frontend_process.stdout.readline()
-                if output == "" and self.frontend_process.poll() is not None:
-                    break
-                if output:
-                    output = ansi_to_html(output)
-                    self.signals.frontend_output_signal.emit(output.strip())
+            self.read_process_output(self.frontend_process, self.signals.frontend_output_signal)
         except Exception as e:
             self.signals.frontend_output_signal.emit(f"Error starting frontend: {e}")
 
@@ -238,41 +230,75 @@ class ProjectManager(QWidget):
             self.backend_process = subprocess.Popen(
                 [python_path, "app.py"],
                 cwd=backend_dir,
+                stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
                 encoding="utf-8",
             )
+            self.read_process_output(self.backend_process, self.signals.backend_output_signal)
+        except Exception as e:
+            self.signals.backend_output_signal.emit(f"Error starting backend: {e}")
+
+    def read_process_output(self, process, signal):
+        def reader():
             while True:
-                output = self.backend_process.stdout.readline()
-                if output == "" and self.backend_process.poll() is not None:
+                output = process.stdout.readline()
+                if output == "" and process.poll() is not None:
                     break
                 if output:
                     output = ansi_to_html(output)
-                    self.signals.backend_output_signal.emit(output.strip())
-        except Exception as e:
-            self.signals.backend_output_signal.emit(f"Error starting backend: {e}")
+                    signal.emit(output.strip())
+        thread = threading.Thread(target=reader)
+        thread.start()
 
     def stop_projects(self):
         if self.frontend_process:
             try:
                 self.frontend_process.terminate()
-                # 等待一段时间让进程有机会正常终止
                 self.frontend_process.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                # 如果超时，强制杀死进程
                 self.frontend_process.kill()
-            self.frontend_process = None
+            except Exception:
+                pass
+            finally:
+                self.frontend_process = None
 
         if self.backend_process:
             try:
                 self.backend_process.terminate()
-                # 等待一段时间让进程有机会正常终止
                 self.backend_process.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                # 如果超时，强制杀死进程
                 self.backend_process.kill()
-            self.backend_process = None
+            except Exception:
+                pass
+            finally:
+                self.backend_process = None
+
+        # 处理子进程
+        if self.frontend_process:
+            try:
+                parent = psutil.Process(self.frontend_process.pid)
+                children = parent.children(recursive=True)
+                for child in children:
+                    child.terminate()
+                _, still_alive = psutil.wait_procs(children, timeout=5)
+                for p in still_alive:
+                    p.kill()
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+
+        if self.backend_process:
+            try:
+                parent = psutil.Process(self.backend_process.pid)
+                children = parent.children(recursive=True)
+                for child in children:
+                    child.terminate()
+                _, still_alive = psutil.wait_procs(children, timeout=5)
+                for p in still_alive:
+                    p.kill()
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
 
     def restart_projects(self):
         self.stop_projects()
@@ -284,9 +310,7 @@ class ProjectManager(QWidget):
         self.start_projects()
 
     def append_frontend_output(self, text):
-        # 过滤掉端口被占用的提示信息
-        if "is in use, trying another one..." not in text:
-            self.frontend_output.append(text)
+        self.frontend_output.append(text)
 
     def append_backend_output(self, text):
         try:
@@ -313,6 +337,50 @@ class ProjectManager(QWidget):
                 self.backend_output.append(text)
         except Exception as e:
             print(f"Error parsing backend output: {e}")
+
+    def handle_input(self):
+        command = self.manager_input.text().strip().lower()
+        self.manager_input.clear()
+        if command:
+            self.command_history.append(command)
+            self.history_index = len(self.command_history)
+
+        if command == "start":
+            self.start_projects()
+            self.manager_output.append("Starting projects...")
+        elif command == "restart":
+            self.restart_projects()
+            self.manager_output.append("Restarting projects...")
+        elif command == "stop":
+            self.stop_projects()
+            self.manager_output.append("Stopping projects...")
+        elif command == "help":
+            help_text = """
+Available commands:
+- start: Start the frontend and backend projects.
+- restart: Restart the frontend and backend projects.
+- stop: Stop the frontend and backend projects.
+- help: Show this help message.
+            """
+            self.manager_output.append(help_text)
+        else:
+            self.manager_output.append(f"Unknown command: {command}")
+            self.quit_confirm = False
+
+    def handle_key_press(self, event):
+        if event.key() == Qt.Key.Key_Up:
+            if self.history_index > 0:
+                self.history_index -= 1
+                self.manager_input.setText(self.command_history[self.history_index])
+        elif event.key() == Qt.Key.Key_Down:
+            if self.history_index < len(self.command_history) - 1:
+                self.history_index += 1
+                self.manager_input.setText(self.command_history[self.history_index])
+            elif self.history_index == len(self.command_history) - 1:
+                self.history_index += 1
+                self.manager_input.clear()
+        else:
+            QLineEdit.keyPressEvent(self.manager_input, event)
 
 
 if __name__ == "__main__":
