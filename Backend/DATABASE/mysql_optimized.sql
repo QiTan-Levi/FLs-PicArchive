@@ -1,14 +1,18 @@
+-- 创建数据库并指定字符编码
+CREATE DATABASE IF NOT EXISTS FsPicArchieve CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE FsPicArchieve;
+
 -- 检查 users 表是否存在，如果不存在则创建
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY, -- 用户ID
     username VARCHAR(50) NOT NULL UNIQUE, -- 用户名
     password VARCHAR(255) NOT NULL, -- 密码
     email VARCHAR(100) NOT NULL UNIQUE, -- 邮箱
-    avatar VARCHAR(255) COMMENT "用户头像", -- 用户头像
+    avatar VARCHAR(255) COMMENT '用户头像', -- 用户头像
     regis_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 注册时间
     last_login DATETIME, -- 上次登录时间
     status TINYINT DEFAULT 1 COMMENT '0-禁用 1-正常 2-审图员 3-管理员' -- 用户状态
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 检查 images 表是否存在，如果不存在则创建
 CREATE TABLE IF NOT EXISTS images (
@@ -29,7 +33,7 @@ CREATE TABLE IF NOT EXISTS images (
     -- 飞机的机型
     aircraft_model VARCHAR(255),
     -- 图片类型
-    image_type SET('Airport', 'Cockpit', 'Artistic', 'Ground', 'Cargo', 'Special_Livery', 'Night','Nospecial') NOT NULL DEFAULT 'Nospecial',
+    image_type SET('Airport', 'Cockpit', 'Artistic', 'Ground', 'Cargo', 'Special_Livery', 'Night', 'Nospecial') NOT NULL DEFAULT 'Nospecial',
     -- 天气状况（建议以当时ATIS为准，若未知则以图片为准）
     weather SET('Sunny', 'Cloudy', 'Overcast', 'Rain', 'Snow', 'Fog', 'Haze', 'Freezing', 'Hail') NOT NULL,
     -- 图片的描述
@@ -52,7 +56,7 @@ CREATE TABLE IF NOT EXISTS images (
     image_data LONGBLOB NOT NULL,
     -- 用于区分图片是待审核还是已审核
     is_pending TINYINT DEFAULT 1 COMMENT '1-待审核 0-已审核',
-    --浏览量
+    -- 浏览量
     views_num INT DEFAULT 0,
     -- 外键约束，关联 users 表的 id 字段
     FOREIGN KEY (user_id) REFERENCES users(id),
@@ -64,7 +68,7 @@ CREATE TABLE IF NOT EXISTS images (
     INDEX idx_airline_operator (airline_operator),
     -- 为 location 字段创建索引，提高查询效率
     INDEX idx_location (location)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 检查 comments 表是否存在，如果不存在则创建
 CREATE TABLE IF NOT EXISTS comments (
@@ -83,10 +87,8 @@ CREATE TABLE IF NOT EXISTS comments (
     -- 外键关联图片表
     FOREIGN KEY (image_id) REFERENCES images(id),
     -- 外键关联用户表
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    -- 评论内容不能为空，点赞内容可以为空
-    CHECK ((type = 0 AND content IS NOT NULL) OR (type = 1))
-);
+    FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 检查 system_logs 表是否存在，如果不存在则创建
 CREATE TABLE IF NOT EXISTS system_logs (
@@ -110,4 +112,4 @@ CREATE TABLE IF NOT EXISTS system_logs (
     FOREIGN KEY (operator_id) REFERENCES users(id),
     -- 外键关联图片表
     FOREIGN KEY (image_id) REFERENCES images(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
