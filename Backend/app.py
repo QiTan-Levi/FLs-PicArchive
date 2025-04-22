@@ -16,6 +16,7 @@ from utils import (
 import mimetypes
 import ast
 from datetime import datetime, timedelta
+import base64
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, resources={
@@ -56,7 +57,7 @@ def get_images():
     base_query = """
         SELECT i.id, i.file_type, i.aircraft_model, i.location, 
                i.image_description, i.upload_time, i.is_featured, i.user_id, 
-               u.username
+               u.username, i.image_data
         FROM images i
         JOIN users u ON i.user_id = u.id
         WHERE i.is_pending = 0
@@ -77,8 +78,10 @@ def get_images():
     
     images = cursor.fetchall()
     result = []
-    
     for image in images:
+        # Encode the binary data to Base64
+        filedata_base64 = base64.b64encode(image[9]).decode('utf-8')
+        
         result.append({
             'id': image[0],
             'aircraft_model': image[2],
@@ -87,9 +90,9 @@ def get_images():
             'upload_time': image[5].strftime('%Y-%m-%d %H:%M:%S') if image[5] else None,
             'user_id': image[7],
             'username': image[8],
-            'avatar': image[9],
             'filename': image[1],
-            'content_type': 'image/jpeg'  # 假设所有图片都是jpeg格式
+            'content_type': 'image/jpeg',  # Assuming all images are jpeg format
+            'filedata': filedata_base64  # Use Base64 encoded string
         })
     
     return jsonify({
@@ -351,7 +354,7 @@ def get_featured_images():
         FROM images i
         JOIN users u ON i.user_id = u.id
         LEFT JOIN comments c ON i.id = c.image_id AND c.type = 1
-        WHERE i.upload_time >= %s
+        WHERE i.upload_time >= %s AND i.is_featured = 1
         GROUP BY i.id, i.aircraft_model, i.image_description, i.upload_time, i.user_id, u.username
         ORDER BY likes_count DESC, i.upload_time DESC
         LIMIT 10

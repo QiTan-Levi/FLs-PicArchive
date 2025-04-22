@@ -15,6 +15,8 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSignal, QObject
 import os
 import psutil
+from configparser import ConfigParser
+from PyQt6.QtWidgets import QInputDialog
 
 
 class OutputSignals(QObject):
@@ -209,6 +211,9 @@ class ProjectManager(QWidget):
             frontend_dir = os.path.join(current_dir, "Frontend")
             npm_path = os.path.join(os.environ.get("APPDATA"), "npm", "npm.cmd")
             port = 5173
+            if is_port_in_use(port):
+                self.signals.frontend_output_signal.emit(f"Port {port} is already in use.")
+                return
             self.frontend_process = subprocess.Popen(
                 [npm_path, "run", "dev", "--", f"--port={port}"],
                 cwd=frontend_dir,
@@ -242,63 +247,35 @@ class ProjectManager(QWidget):
 
     def read_process_output(self, process, signal):
         def reader():
-            while True:
-                output = process.stdout.readline()
-                if output == "" and process.poll() is not None:
-                    break
-                if output:
-                    output = ansi_to_html(output)
-                    signal.emit(output.strip())
+            try:
+                while True:
+                    output = process.stdout.readline()
+                    if output == "" and process.poll() is not None:
+                        break
+                    if output:
+                        output = ansi_to_html(output)
+                        signal.emit(output.strip())
+            except Exception as e:
+                signal.emit(f"Error reading process output: {e}")
         thread = threading.Thread(target=reader)
         thread.start()
 
     def stop_projects(self):
         if self.frontend_process:
             try:
-                self.frontend_process.terminate()
-                self.frontend_process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
                 self.frontend_process.kill()
-            except Exception:
-                pass
-            finally:
+                kill_process_tree(self.frontend_process.pid)
                 self.frontend_process = None
+            except Exception as e:
+                self.manager_output.append(f"Error stopping frontend: {e}")
 
         if self.backend_process:
             try:
-                self.backend_process.terminate()
-                self.backend_process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
                 self.backend_process.kill()
-            except Exception:
-                pass
-            finally:
+                kill_process_tree(self.backend_process.pid)
                 self.backend_process = None
-
-        # 处理子进程
-        if self.frontend_process:
-            try:
-                parent = psutil.Process(self.frontend_process.pid)
-                children = parent.children(recursive=True)
-                for child in children:
-                    child.terminate()
-                _, still_alive = psutil.wait_procs(children, timeout=5)
-                for p in still_alive:
-                    p.kill()
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-
-        if self.backend_process:
-            try:
-                parent = psutil.Process(self.backend_process.pid)
-                children = parent.children(recursive=True)
-                for child in children:
-                    child.terminate()
-                _, still_alive = psutil.wait_procs(children, timeout=5)
-                for p in still_alive:
-                    p.kill()
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
+            except Exception as e:
+                self.manager_output.append(f"Error stopping backend: {e}")
 
     def restart_projects(self):
         self.stop_projects()
@@ -336,7 +313,7 @@ class ProjectManager(QWidget):
             else:
                 self.backend_output.append(text)
         except Exception as e:
-            print(f"Error parsing backend output: {e}")
+            self.manager_output.append(f"Error parsing backend output: {e}")
 
     def handle_input(self):
         command = self.manager_input.text().strip().lower()
@@ -344,7 +321,7 @@ class ProjectManager(QWidget):
         if command:
             self.command_history.append(command)
             self.history_index = len(self.command_history)
-
+    
         if command == "start":
             self.start_projects()
             self.manager_output.append("Starting projects...")
@@ -356,16 +333,88 @@ class ProjectManager(QWidget):
             self.manager_output.append("Stopping projects...")
         elif command == "help":
             help_text = """
-Available commands:
-- start: Start the frontend and backend projects.
-- restart: Restart the frontend and backend projects.
-- stop: Stop the frontend and backend projects.
-- help: Show this help message.
-            """
+    Available commands:
+    - start: Start the frontend and backend projects.
+    - restart: Restart the frontend and backend projects.
+    - stop: Stop the frontend and backend projects.
+    - help: Show this help message.
+    - quit: Quit the program and stop all running projects.
+    - finit: Run npm install in the frontend directory and then prompt for configuration input.
+                """
             self.manager_output.append(help_text)
+        elif command == "quit":
+            self.stop_projects()
+            self.manager_output.append("Quitting program...")
+            self.close()
+        elif command == "finit":
+            self.run_npm_install()
+            self.prompt_config_input_loop()
         else:
             self.manager_output.append(f"Unknown command: {command}")
             self.quit_confirm = False
+
+    def prompt_config_input_loop(self):
+        config_set = False
+        while not config_set:
+            self.manager_output.append("Please input configuration (type 'done' when finished):")
+            input_text = self.manager_input.text().strip()
+            if input_text.lower() == 'done':
+                config_set = True
+                self.manager_output.append("Configuration set successfully.")
+            else:
+                self.manager_output.append(f"Received configuration input: {input_text}")
+                # 在这里可以添加逻辑来处理输入的配置
+    
+    def set_config(self):
+        try:
+            config_path = os.path.join(os.getcwd(), "Backend", "config.ini")
+            config = ConfigParser()
+            config.read(config_path)
+            # 这里可以添加设置配置的逻辑
+            for section in config.sections():
+                for key, value in config.items(section):
+                    self.manager_output.append(f"Set {key} to {value} in {section}")
+            self.manager_output.append("Configuration set successfully.")
+        except Exception as e:
+            self.manager_output.append(f"Error setting configuration: {e}")
+
+    def run_npm_install(self):
+        try:
+            frontend_dir = os.path.join(os.getcwd(), "Frontend")
+            npm_path = os.path.join(os.environ.get("APPDATA"), "npm", "npm.cmd")
+            subprocess.run([npm_path, "install"], cwd=frontend_dir, check=True)
+            self.manager_output.append("npm install completed successfully.")
+        except subprocess.CalledProcessError as e:
+            self.manager_output.append(f"Error running npm install: {e}")
+        except Exception as e:
+            self.manager_output.append(f"Unexpected error running npm install: {e}")
+
+    def prompt_config_input(self):
+        try:
+            config_path = os.path.join(os.getcwd(), "Backend", "config.ini")
+            config = ConfigParser()
+            config.read(config_path)
+    
+            # 逐项提示用户输入配置
+            for section in config.sections():
+                for key in config[section]:
+                    while True:
+                        self.manager_output.append(f"Please input value for {key} in {section}:")
+                        input_text = self.manager_input.text().strip()
+                        if input_text:
+                            config.set(section, key, input_text)
+                            self.manager_output.append(f"Set {key} to {input_text} in {section}")
+                            break
+                        else:
+                            self.manager_output.append(f"Invalid input for {key}. Please try again.")
+    
+            # 保存更新后的配置
+            with open(config_path, 'w') as configfile:
+                config.write(configfile)
+    
+            self.manager_output.append("Configuration set successfully.")
+        except Exception as e:
+            self.manager_output.append(f"Error setting configuration: {e}")
 
     def handle_key_press(self, event):
         if event.key() == Qt.Key.Key_Up:
@@ -382,8 +431,13 @@ Available commands:
         else:
             QLineEdit.keyPressEvent(self.manager_input, event)
 
+    def closeEvent(self, event):
+        self.stop_projects()
+        event.accept()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     manager = ProjectManager()
     sys.exit(app.exec())
+    

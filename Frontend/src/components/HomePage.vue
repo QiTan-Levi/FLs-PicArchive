@@ -56,18 +56,18 @@
   </div>
   <!-- 热门图片展示区 -->
   <div class="image-grid">
-    <div v-for="image in images" :key="image.id" class="image-card">
-      <img :src="image.url" :alt="image.title" class="grid-image">
+    <div v-for="image in images.data" :key="image.id" class="image-card">
+      <img :src="'data:image/jpeg;base64,' + image.filedata" :alt="image.aircraft_model" class="grid-image">
       <div class="image-info">
         <div class="image-meta">
-          <span class="photographer">{{ image.photographer }}</span>
-          <span class="views">{{ image.views }} 浏览量</span>
+          <span class="photographer">{{ image.username }}</span>
+          <span class="views">{{ image.views || 0 }} 浏览量</span>
         </div>
         <div class="image-details">
-          <span class="model">{{ image.model }}</span>
-          <span class="registration">{{ image.registration }}</span>
+          <span class="model">{{ image.aircraft_model }}</span>
+          <span class="registration">{{ image.registration || '' }}</span>
           <button @click="likeImage(image.id)" class="like-button">
-            <i class="fas fa-thumbs-up"></i> {{ image.likes }}
+            <i class="fas fa-thumbs-up"></i> {{ image.likes || 0 }}
           </button>
         </div>
       </div>
@@ -123,12 +123,16 @@ onMounted(async () => {
   userName.value = localStorage.getItem('userName') || '';
   try {
     const featuredResponse = await fetch('/api/featured-images');
+    console.log('Featured Images Response:', featuredResponse);
     if (!featuredResponse.ok) throw new Error('Failed to fetch featured images');
     featuredImages.value = await featuredResponse.json();
+    console.log('Featured Images Data:', featuredImages.value);
 
     const imagesResponse = await fetch('/api/images');
+    console.log('Images Response:', imagesResponse);
     if (!imagesResponse.ok) throw new Error('Failed to fetch images');
     images.value = await imagesResponse.json();
+    console.log('Images Data:', images.value);
 
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -178,7 +182,13 @@ const handleLogout = async () => {
     console.error('登出失败:', error);
   }
 };
+// Add this with your other ref declarations
+const currentSlide = ref(0);
 
+// Add this function to handle slide navigation
+const goToSlide = (index) => {
+  currentSlide.value = index;
+};
 // Example function to fetch images without Vuex (if needed)
 // async function fetchImages() {
 //   try {
@@ -190,7 +200,16 @@ const handleLogout = async () => {
 //     images.value = []; // Reset or handle error
 //   }
 // }
-
+// Add this function
+const likeImage = async (imageId) => {
+  try {
+    // Implement like functionality here
+    console.log('Liking image with ID:', imageId);
+    // You can add API call here when you implement the backend
+  } catch (error) {
+    console.error('Error liking image:', error);
+  }
+};
 </script>
 
 
@@ -582,3 +601,6 @@ const handleLogout = async () => {
   }
 }
 </style>
+
+
+
