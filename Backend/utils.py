@@ -40,9 +40,9 @@ def send_verification_email(email, code):
     msg['Subject'] = Header('ByInfo Service Picture Archive 验证码', 'utf-8')
     
     try:
-        smtp = smtplib.SMTP_SSL("smtp.163.com", 465)
-        smtp.login("byinfosvc@163.com", "BMSvkGwzrVE8fijz")
-        smtp.sendmail("byinfosvc@163.com", [email], msg.as_string())
+        smtp = smtplib.SMTP_SSL("smtp.exmail.qq.com", 465)
+        smtp.login("Noreply@byinfo.cloud", "2aK2ZBArYFjKHEvC")
+        smtp.sendmail("Noreply@byinfo.cloud", [email], msg.as_string())
         smtp.quit()
         print(f"验证码已发送到 {email}")
     except Exception as e:
