@@ -51,7 +51,8 @@
     <div class="image-grid">
       <div v-for="image in images.data" :key="image.id" class="image-card">
         <img :src="'data:image/jpeg;base64,' + image.filedata" :alt="image.aircraft_model" class="grid-image">
-        <div class="status-indicator" :style="{ backgroundColor: getStatusColor(image.rating) }" v-html="getStarDisplay(image.rating)">
+        <div class="status-indicator" :style="{ backgroundColor: getStatusColor(image.rating) }">
+          {{ getStarDisplay(image.rating) }}
         </div>
         <div class="image-info">
           <div class="image-meta">
@@ -65,12 +66,12 @@
               <img src="@/assets/views.svg" alt="Views" class="views-icon"
                 style="margin-top: 0.00788rem  ;margin-right: -0.06rem; " />
                 &hairsp;
-                {{ image.views || 'No' }}
+                {{ image.views || 'Unknown' }}
               &nbsp;&nbsp;&thinsp;
               <img src="@/assets/likie.svg" alt="Likes" class="views-icon"
                 style="margin-top: 0.00788rem ;margin-right: -0.06rem; height: 12px; width: 12px; " />
                 &hairsp;
-                {{ image.likes || 'No' }}
+                {{ image.likes || 0 }}
             </span>
           </div>
         </div>
@@ -152,12 +153,12 @@ const getStatusColor = (rating) => {
   switch (rating) {
     case '':
       return '#e74c3c';
-    case 1 :
-      return '#2ecc71';
+    case 1:
+      return '#f39c12';
     case 2:
-      return '#2ecc71';
-    case 3:
-      return '#2ecc71';
+      return '#f39c12';
+    case '优秀':
+      return '#3498db';
     case '未知用途':
       return '#2ecc71';
     default:
@@ -168,9 +169,9 @@ const getStatusColor = (rating) => {
 const getStarDisplay = (rating) => {
   switch (rating) {
     case 1:
-      return '&emsp;★&emsp;';
+      return '&nbsp;★&nbsp;';
     case 2:
-      return '&ensp;★★&ensp;';
+      return '★★';
     case 3:
       return '★★★';
     default:

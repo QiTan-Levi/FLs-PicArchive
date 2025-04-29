@@ -11,9 +11,10 @@ export default defineConfig({
     }
   },
   server: {
+    allowedHosts: ['pic.byinfo.cloud', 'localhost'],
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://26.179.104.239:5000',
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, '')
       }

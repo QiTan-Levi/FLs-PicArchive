@@ -21,7 +21,7 @@ import base64
 app = Flask(__name__)
 CORS(app, supports_credentials=True, resources={
     r"/*": {
-        "origins": ["http://localhost:5173", "http://localhost:5000", "http://localhost:3000"],
+        "origins": ["http://localhost:5173", "http://localhost:5000", "http://localhost:3000",'http://26.179.104.239'],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
         "expose_headers": ["Content-Range", "X-Content-Range"],
@@ -382,4 +382,4 @@ def get_featured_images():
     return jsonify({'status': 'success', 'data': result})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)

@@ -43,7 +43,7 @@ const sendVerificationCode = async () => {
   countdown.value = 60;
   
   try {
-    await axios.post('http://localhost:5000/send-verification-code', {
+    await axios.post('http://26.179.104.239:5000/send-verification-code', {
       email: email.value
     });
     
@@ -83,7 +83,7 @@ const register = async () => {
   }
 
   try {
-    const response = await axios.post('http://localhost:5000/register', {
+    const response = await axios.post('http://26.179.104.239:5000/register', {
       username: username.value,
       password: password.value,
       email: email.value,

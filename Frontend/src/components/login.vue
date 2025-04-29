@@ -105,7 +105,7 @@ const sendLoginCode = async () => {
   
   try {
     // Assuming the endpoint is /send-login-code based on reference
-    await axios.post('http://localhost:5000/send-verification-code', {
+    await axios.post('http://26.179.104.239:5000/send-verification-code', {
       email: email.value
     });
     
@@ -159,7 +159,7 @@ const login = async () => {
         };
     
     // Direct API call instead of Vuex action
-    const response = await axios.post('http://localhost:5000/api/login', payload);
+    const response = await axios.post('http://26.179.104.239:5000/api/login', payload);
     
     if (response.data.status === 'success') {
       // Save login state and user info to localStorage
