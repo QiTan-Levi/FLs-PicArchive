@@ -6,7 +6,6 @@ from email.header import Header
 
 verification_codes = {}
 mysql = None
-mongodb = None
 fs = None
 
 def init_db_connections():

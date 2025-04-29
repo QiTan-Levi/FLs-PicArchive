@@ -92,7 +92,7 @@
                 style="max-width: 98%; width: 355px; height:200px; display: flex; align-items: center; justify-content: center;margin: auto;margin-left: 1.1%;padding: 8px;"
                 @click="triggerFileInput" @drop.prevent="handleDrop" @dragover.prevent>
                 <input type="file" ref="fileInput" @change="handleFileChange" accept="image/jpeg,image/jpg"
-                  style="display: none; place-items: center; max-width: 10%; max-height: 10%;">
+                   style="display: none; place-items: center; max-width: 10%; max-height: 10%;">
                 <div v-if="!previewImage" class="upload-placeholder r1">
                   <i class="fas fa-cloud-upload-alt"></i>
                   <p>点击或拖拽照片到此处上传</p>
@@ -672,6 +672,10 @@ const drawRGBLineChart = (imageData) => {
 
 
 <style scoped>
+input:not([type="file"]) {
+  outline: none;
+}
+
 /* 基础样式 */
 .body {
   overflow: hidden;
@@ -1004,7 +1008,20 @@ const drawRGBLineChart = (imageData) => {
   font-size: 1rem;
   cursor: pointer;
 }
-
+.logout-button {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #262d91;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+  text-align: left;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+}
 .dropdown-item:hover {
   background: rgba(38, 45, 145, 0.1);
 }

@@ -1,4 +1,5 @@
 import json
+from configparser import ConfigParser
 from re import U
 from tkinter import image_names, image_types
 from flask import Flask, request, make_response, jsonify , url_for
@@ -17,11 +18,15 @@ import mimetypes
 import ast
 from datetime import datetime, timedelta
 import base64
+import re
+
+config = ConfigParser()
+config.read('config.ini')
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, resources={
     r"/*": {
-        "origins": ["http://localhost:5173", "http://localhost:5000", "http://localhost:3000",'http://26.179.104.239'],
+        "origins": config.get('Address','Frontend_address'),
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
         "expose_headers": ["Content-Range", "X-Content-Range"],
@@ -32,12 +37,6 @@ CORS(app, supports_credentials=True, resources={
 # 初始化数据库连接
 mysql = init_db_connections()
 
-# 配置上传文件存储路径
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
-
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -150,10 +149,10 @@ def upload_image():
         weather_str = ','.join(weathers) if weathers else ''
 
         # Debugging: Print SQL statement and parameters
-        print("SQL Statement: INSERT INTO images ...")
-        print("Parameters:", (user_id, shooting_time, timezone, registrationnumber,
-                              aircraft_model, image_type_str, weather_str, description,
-                              location, datetime.now(), 'jpg', file, flightNumber, airlineOperator))
+        # print("SQL Statement: INSERT INTO images ...")
+        # print("Parameters:", (user_id, shooting_time, timezone, registrationnumber,
+        #                       aircraft_model, image_type_str, weather_str, description,
+        #                       location, datetime.now(), 'jpg', file, flightNumber, airlineOperator))
         # 直接从上传的文件对象读取二进制数据
         file_data = file.read()
 
@@ -195,6 +194,7 @@ def register():
     username = data['username']
     password = data['password']
     email = data['email']
+    email = email.lower()
     regis_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     
     cursor = mysql.cursor()
@@ -247,8 +247,13 @@ def login():
             username = data['username']
             password = data['password']
             cursor = mysql.cursor()
-            cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", 
-                          (username, password))
+            if re.match(r"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$", username):
+                username = username.lower()
+                cursor.execute("SELECT * FROM users WHERE email = %s AND password = %s",
+                            (username, password))
+            else:
+                cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", 
+                            (username, password))
             user = cursor.fetchone()
             if not user:
                 return {"status": "failed", "message": "用户名或密码错误"}, 401
@@ -326,7 +331,6 @@ def login():
             return {"status": "failed", "message": "无效的登录请求格式"}, 400
 
     except Exception as e:
-        print("登录错误:", str(e))  # 错误日志
         return {"status": "failed", "message": f"登录失败: {str(e)}"}, 500
 
 @app.route('/api/upload_avatar', methods=['POST'])

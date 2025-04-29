@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { API_BASE_URL } from '../config';
 
 const router = useRouter();
 const username = ref('');
@@ -43,7 +44,7 @@ const sendVerificationCode = async () => {
   countdown.value = 60;
   
   try {
-    await axios.post('http://26.179.104.239:5000/send-verification-code', {
+    await axios.post(`${API_BASE_URL}/send-verification-code`, {
       email: email.value
     });
     
@@ -83,7 +84,7 @@ const register = async () => {
   }
 
   try {
-    const response = await axios.post('http://26.179.104.239:5000/register', {
+    const response = await axios.post(`${API_BASE_URL}/register`, {
       username: username.value,
       password: password.value,
       email: email.value,

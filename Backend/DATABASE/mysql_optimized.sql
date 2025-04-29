@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(50) NOT NULL UNIQUE, -- 用户名
     password VARCHAR(255) NOT NULL, -- 密码
     email VARCHAR(100) NOT NULL UNIQUE, -- 邮箱
-    avatar VARCHAR(255) COMMENT '用户头像', -- 用户头像
+    avatar LONGBLOB COMMENT '用户头像', -- 用户头像
     regis_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 注册时间
     last_login DATETIME, -- 上次登录时间
     status TINYINT DEFAULT 1 COMMENT '0-禁用 1-正常 2-审图员 3-管理员' -- 用户状态
