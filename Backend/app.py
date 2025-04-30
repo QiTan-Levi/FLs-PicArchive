@@ -38,6 +38,9 @@ CORS(app, supports_credentials=True, resources={
 mysql = init_db_connections()
 
 
+# Define allowed extensions
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -55,17 +58,19 @@ def get_images():  # 定义获取图片的函数
         limit = int(limit)  # 将limit转换为整数
     except ValueError:
         limit = 20  # 如果转换失败，使用默认值20
-    
+    limit = 500
     cursor = mysql.cursor()  # 创建MySQL数据库游标
     base_query = """  # 定义基础SQL查询语句
         SELECT i.id, i.registration_number, i.file_type, i.aircraft_model, i.location, 
                i.image_description, i.upload_time, i.is_featured, i.user_id, 
-               u.username, i.image_data,i.airline_operator,i.rating
+               u.username, i.image_data,i.airline_operator,i.rating,i.views_num
         FROM images i
         JOIN users u ON i.user_id = u.id
         WHERE i.is_pending = 0
     """  # 选择未处于待审核状态的图片，并关联用户表获取用户名
     
+
+
     if category == '全部':  # 如果类别是'全部'
         if search_query:  # 如果有搜索关键词
             cursor.execute(base_query + " AND (i.aircraft_model LIKE %s OR i.image_description LIKE %s) ORDER BY i.upload_time DESC LIMIT %s", 
@@ -85,12 +90,12 @@ def get_images():  # 定义获取图片的函数
         # 将二进制图片数据编码为Base64字符串
         # Ensure image[9] is in bytes before encoding
         filedata_base64 = base64.b64encode(image[10]).decode('utf-8')  # 将图片二进制数据转换为Base64编码的字符串
-        print(str(image[:-3])+str(image[-2:]))
+        # print(str(image[:-3])+str(image[-2:]))
         result.append({  # 将图片信息添加到结果列表中
             'id': image[0],  # 图片ID
             'reg_number': image[1],  # 飞机注册号
-            'airline': image[-2],  # 航空公司
-            'rating': int(image[-1]),  # 评分
+            'airline': image[11],  # 航空公司
+            'rating': int(image[12]),  # 评分
             'aircraft_model': image[3],  # 飞机型号
             'location': image[4],  # 拍摄地点
             'description': image[5],  # 图片描述
@@ -98,6 +103,7 @@ def get_images():  # 定义获取图片的函数
             'user_id': image[8],  # 上传用户ID
             'username': image[9],  # 上传用户名
             'filename': image[2],  # 文件名
+            'views': image[13],
             'content_type': 'image/jpeg',  # 内容类型，假设所有图片都是JPEG格式
             'filedata': filedata_base64  # 使用Base64编码的图片数据
         })
@@ -108,6 +114,62 @@ def get_images():  # 定义获取图片的函数
     })
 
 
+
+@app.route('/api/pop', methods=['GET'])
+def get_popular_images():
+    cursor = mysql.cursor()  # 创建MySQL数据库游标
+    likes_count_query = """
+    SELECT 
+        i.rating,
+        i.registration_number,
+        i.airline_operator,
+        i.shooting_time,
+        i.aircraft_model,
+        i.image_data,
+        i.likes_num,
+        i.views_num,
+        i.image_description,
+        i.upload_time,
+        i.location,
+        u.username  -- Ensure this column is selected
+    FROM 
+        images i
+    JOIN 
+        comments c ON i.id = c.image_id
+    JOIN 
+        users u ON i.user_id = u.id  -- Add this join to include the users table
+    WHERE 
+        c.type = 1 AND -- 确保是点赞类型
+        c.comment_time >= NOW() - INTERVAL 10 DAY
+    GROUP BY 
+        i.id
+    ORDER BY 
+        COUNT(c.id) DESC
+    LIMIT 2;
+    """
+    cursor.execute(likes_count_query)  # 执行SQL查询，获取点赞数量最多的图片
+    popular_images = cursor.fetchall()  # 获取所有查询结果
+
+    result = []
+    for image in popular_images:
+        # Encode image_data to Base64
+        image_data_base64 = base64.b64encode(image[5]).decode('utf-8')
+        result.append({
+            'rating': image[0],
+            'registration_number': image[1],
+            'airline_operator': image[2],
+            'shooting_time': image[3],
+            'aircraft_model': image[4],
+            'likes_num': image[6],
+            'views_num': image[7],
+            'image_description': image[8],
+            'upload_time': image[9].strftime('%Y-%m-%d %H:%M:%S') if image[9] else None,
+            'location': image[10],
+            'username': image[11],
+            'image_data': image_data_base64
+        })
+    
+    return jsonify({'status': 'success', 'data': result})
 
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
@@ -128,7 +190,7 @@ def upload_image():
         
         # 初始化 cursor
         cursor = mysql.cursor()
-        print("接收到的表单数据:", request.form)  # 调试日志
+        # print("接收到的表单数据:", request.form)  # 调试日志
         getting_user_id = cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
         user_id = cursor.fetchone()[0]
 
@@ -356,34 +418,6 @@ def upload_avatar():
     return jsonify({'status': 'failed', 'message': '不支持的文件类型'})
 
 
-@app.route('/api/featured-images', methods=['GET'])
-def get_featured_images():
-    cursor = mysql.cursor()
-    three_days_ago = datetime.now() - timedelta(days=3)
-    cursor.execute('''
-        SELECT i.id, i.aircraft_model, i.image_description, 
-               i.upload_time, i.user_id, u.username, COUNT(c.id) as likes_count
-        FROM images i
-        JOIN users u ON i.user_id = u.id
-        LEFT JOIN comments c ON i.id = c.image_id AND c.type = 1
-        WHERE i.upload_time >= %s AND i.is_featured = 1
-        GROUP BY i.id, i.aircraft_model, i.image_description, i.upload_time, i.user_id, u.username
-        ORDER BY likes_count DESC, i.upload_time DESC
-        LIMIT 10
-    ''', (three_days_ago,))
-    images = cursor.fetchall()
-    result = []
-    for image in images:
-        result.append({
-            'id': image[0],
-            'aircraft_model': image[1],
-            'description': image[2],
-            'upload_time': image[3].strftime('%Y-%m-%d %H:%M:%S') if image[3] else None,
-            'user_id': image[4],
-            'username': image[5],
-            'content_type': 'image/jpeg'
-        })
-    return jsonify({'status': 'success', 'data': result})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

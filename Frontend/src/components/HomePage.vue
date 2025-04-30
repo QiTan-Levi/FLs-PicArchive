@@ -26,20 +26,10 @@
         </div>
       </div>
     </nav>
-    <!-- 轮播图区域 -->
-    <div class="carousel">
-      <div v-for="(image, index) in featuredImages" :key="index" class="carousel-item">
-        <img :src="image.url" :alt="image.title" class="carousel-image">
-        <div class="carousel-info">
-          <h3>{{ image.title }}</h3>
-          <p>{{ image.description }}</p>
-        </div>
-      </div>
-      <div class="carousel-indicators">
-        <span v-for="(image, index) in featuredImages" :key="index" :class="{ 'active': currentSlide === index }"
-          @click="goToSlide(index)"></span>
-      </div>
+    <div class="full-screen-image">
+      <img :src="'data:image/jpeg;base64,' + (popimgData.data?.[0]?.image_data || '')" alt="Full Screen Image" class="main-featured-image">
     </div>
+
     <!-- 分类筛选区 -->
     <div class="filters">
       <button v-for="category in categories" :key="category"
@@ -66,12 +56,12 @@
               <img src="@/assets/views.svg" alt="Views" class="views-icon"
                 style="margin-top: 0.00788rem  ;margin-right: -0.06rem; " />
                 &hairsp;
-                {{ image.views || 'Unknown' }}
+                {{ image.views || '0' }}
               &nbsp;&nbsp;&thinsp;
               <img src="@/assets/likie.svg" alt="Likes" class="views-icon"
                 style="margin-top: 0.00788rem ;margin-right: -0.06rem; height: 12px; width: 12px; " />
                 &hairsp;
-                {{ image.likes || 0 }}
+                {{ image.likes || '0' }}
             </span>
           </div>
         </div>
@@ -82,11 +72,10 @@
       <div class="footer-content">
         <div class="footer-section">
           <a href="#" class="social-link">关于我们</a>
-          <a href="#" class="social-link">使用条款</a>
-          <a href="#" class="social-link">隐私政策</a>
+          <a href="#" class="social-link">审核细则</a>
         </div>
         <div class="footer-section">
-          <span>Copyright 2025 by TanQi. All rights reserved.</span>
+          <span>Copyright 2025 by TanQi. All rights reserved.Follow the AGPL-3.0 license.</span>
         </div>
       </div>
     </footer>
@@ -117,6 +106,9 @@ const featuredImages = ref([]); // 初始化为空数组
 
 const images = ref([]); // Example: Default empty array
 
+// Add this line at the top-level
+const popimgData = ref({ image_data: '' }); 
+
 // Category logic
 const categories = ['全部', '民航', '军用', '通用'];
 const selectedCategory = ref('全部');
@@ -128,11 +120,7 @@ onMounted(async () => {
   isLoggedIn.value = localStorage.getItem('isLoggedIn') === 'true';
   userName.value = localStorage.getItem('userName') || '';
   try {
-    const featuredResponse = await fetch('/api/featured-images');
-    console.log('Featured Images Response:', featuredResponse);
-    if (!featuredResponse.ok) throw new Error('Failed to fetch featured images');
-    featuredImages.value = await featuredResponse.json();
-    console.log('Featured Images Data:', featuredImages.value);
+
 
     const imagesResponse = await fetch('/api/images');
     console.log('Images Response:', imagesResponse);
@@ -140,8 +128,12 @@ onMounted(async () => {
     images.value = await imagesResponse.json();
     console.log('Images Data:', images.value);
     
+    const popimgResponse = await fetch('/api/pop');
+    console.log('popimg Response:', popimgResponse);
+    popimgData.value = await popimgResponse.json(); // Assign to .value
+    console.log('popimg Data:', popimgData.value);
 
-
+    
   } catch (error) {
     console.error('Error fetching data:', error);
   }
@@ -157,8 +149,8 @@ const getStatusColor = (rating) => {
       return '#f39c12';
     case 2:
       return '#f39c12';
-    case '优秀':
-      return '#3498db';
+    case 3:
+      return '#f39c12';
     case '未知用途':
       return '#2ecc71';
     default:
@@ -169,7 +161,7 @@ const getStatusColor = (rating) => {
 const getStarDisplay = (rating) => {
   switch (rating) {
     case 1:
-      return '&nbsp;★&nbsp;';
+      return '★';
     case 2:
       return '★★';
     case 3:
@@ -243,11 +235,177 @@ const likeImage = async (imageId) => {
 
 <style scoped>
 .home-container {
-  min-height: 1000vh;
+  min-height: 100vh;
   background: linear-gradient(200deg, #e2e9f3 0%, #c3cfe2 100%);
-  padding-top: 50px;
+  padding-top: 70px;
 }
 
+.full-screen-image {
+  width: 98.76vw;
+  height: 93vh;
+  position: relative;
+  overflow: hidden;
+  margin-top: -10px;
+  z-index: 0;
+}
+
+.slider-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.slider-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.slider-image.active {
+  opacity: 1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.main-featured-image {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2rem;
+  padding: 2rem 3rem 0 3rem;
+  font-size: 2.5rem;
+  color: #222;
+  font-weight: bold;
+}
+
+.overlay-logo {
+  height: 60px;
+}
+
+.overlay-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-left: 1rem;
+}
+
+.overlay-badge {
+  background: #f44;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.3rem 1rem;
+  font-size: 1.2rem;
+  margin-left: 1rem;
+}
+
+.overlay-stats {
+  margin-left: auto;
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.overlay-like, .overlay-view {
+  display: flex;
+  align-items: center;
+  font-size: 2rem;
+  color: #f9b233;
+  font-weight: bold;
+}
+
+.icon {
+  height: 2.2rem;
+  margin-right: 0.5rem;
+}
+
+.overlay-image-box {
+  margin: 0 auto;
+  margin-top: 2rem;
+  background: rgba(255,255,255,0.18);
+  border-radius: 24px;
+  padding: 1.5rem;
+  max-width: 900px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+}
+
+.overlay-plane-img {
+  width: 100%;
+  border-radius: 18px;
+  display: block;
+}
+
+.overlay-footer {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: rgba(0,0,0,0.18);
+  border-radius: 0 0 32px 32px;
+  padding: 1.5rem 3rem;
+  color: #fff;
+  font-size: 1.3rem;
+  margin-bottom: 0;
+}
+
+.overlay-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1rem;
+}
+
+.overlay-uploader {
+  font-weight: bold;
+}
+
+.overlay-time {
+  margin-left: 1rem;
+  color: #eee;
+}
+
+.overlay-footer-stats {
+  margin-left: auto;
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
 /* 导航栏样式 */
 .nav-bar {
   position: fixed;
@@ -341,7 +499,7 @@ const likeImage = async (imageId) => {
 
 .image-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
   max-width: 1750px;
   margin-left: 398px;
@@ -351,7 +509,6 @@ const likeImage = async (imageId) => {
 .image-card {
   overflow: hidden;
   transition: transform 0.3s ease;
-
 }
 
 .image-card:hover {
@@ -359,8 +516,6 @@ const likeImage = async (imageId) => {
 }
 
 .grid-image {
-  width: 100%;
-  height: 200px;
   object-fit: cover;
 }
 
@@ -370,6 +525,7 @@ const likeImage = async (imageId) => {
   margin-bottom: 0.5rem;
   margin-left: 0.3rem;
   margin-right: 0.3rem;
+  max-height: 80px;
 }
 .status-indicator {
   position: absolute;
@@ -553,12 +709,6 @@ const likeImage = async (imageId) => {
   border-radius: 12px;
 }
 
-.main-featured-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .image-info-overlay {
   position: absolute;
   bottom: 0;
@@ -588,8 +738,8 @@ const likeImage = async (imageId) => {
 }
 
 .grid-image {
-  width: 100%;
-  height: 200px;
+  width: 410px;
+  height: 230px; /* 将高度调整为300px */
   object-fit: cover;
 }
 
