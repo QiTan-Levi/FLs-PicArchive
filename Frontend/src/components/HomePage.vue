@@ -27,7 +27,15 @@
       </div>
     </nav>
     <div class="full-screen-image">
-      <img :src="'data:image/jpeg;base64,' + (popimgData.data?.[0]?.image_data || '')" alt="Full Screen Image" class="main-featured-image">
+      <div class="slider-container">
+        <transition-group name="fade">
+          <img v-for="(image, index) in popimgData.data" 
+               :key="index"
+               :src="'data:image/jpeg;base64,' + image.image_data"
+               :class="['slider-image', { active: currentImageIndex === index }]"
+               alt="Full Screen Image">
+        </transition-group>
+      </div>
     </div>
 
     <!-- 分类筛选区 -->

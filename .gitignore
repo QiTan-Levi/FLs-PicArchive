@@ -1,3 +1,4 @@
 Backend/config.ini
 Backend/config.ini
 /.vscode
+/Backend/__pycache__
